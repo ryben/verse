@@ -1,21 +1,13 @@
 <template>
-  <div id="baseDiv" @contextmenu="rightClickHandler($event)">
-    <div id="inputBar">
-      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput" @paste="onPasteVerseAddress"/>
-      <button @click="onClickGo">Go</button>
-      <span style="margin-left: 30px;">
-        <button @click="showNextVerse(false)">&#60; Prev</button>
-        <button @click="showNextVerse(true)">Next &#62;</button>
-      </span>
-      <span style="margin-left: 30px;">
-        <button @click="increaseFontSize(false)">-</button>
-        <button @click="increaseFontSize(true)">+</button>
-      </span>
-      <span id="errorDisplay" style="margin-left: 30px; color: darkred; font-weight: bold;">
-        {{ errorDisplay }}
-      </span>
-    </div>
-    <div id="verseContainer">
+  <div id="baseDiv" 
+    @contextmenu="rightClickHandler($event)" >
+
+    <div id="verseContainer" 
+       tabindex="0"
+        @keydown.left="showNextVerse(false)"
+        @keydown.right="showNextVerse(true)"
+        @keydown.down="increaseFontSize(false)"
+        @keydown.up="increaseFontSize(true)">
       <div id="verseTitle">
         {{ verseTitle.toUpperCase() }}
       </div>
@@ -27,6 +19,21 @@
       <div id="verseContent" :style="verseFont">
         {{ verseContent }}
       </div>
+    </div>
+    <div id="controlBar">
+      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput" @paste="onPasteVerseAddress"/>
+      <a class="button" @click="onClickGo">Go</a>
+      <span style="margin-left: 15px;">
+        <a class="button" @click="showNextVerse(false)">◀ Prev</a>
+        <a class="button" @click="showNextVerse(true)">Next ▶</a>
+      </span>
+      <span style="margin-left: 15px;">
+        <a class="button" @click="increaseFontSize(false)">−</a>
+        <a class="button" @click="increaseFontSize(true)">+</a>
+      </span>
+      <span id="errorDisplay" style="margin-left: 30px; color: darkred; font-weight: bold;">
+        {{ errorDisplay }}
+      </span>
     </div>
   </div>
 </template>
@@ -114,6 +121,9 @@ export default {
     rightClickHandler: function(event) {
       event.preventDefault();
       this.focusInput()
+    },
+    onArrowRight: function() {
+      alert('Right!')
     },
     onPasteVerseAddress: function(event) {
       let pasted = event.clipboardData.getData('text')
@@ -271,8 +281,12 @@ export default {
     height: 100%;
   }
 
-  #inputBar {
-    padding: 30px;
+  #controlBar {
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   #verseContainer {
@@ -281,8 +295,11 @@ export default {
     border-radius: 50px;
     font-family: Arial, Helvetica, sans-serif;
     height: 77%;
-    margin-left: 30px;
-    margin-right: 30px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    right: 30px;
+    outline: none;
   }
 
   #verseTitle {
@@ -300,6 +317,42 @@ export default {
     color: white;
     text-align: center;
     font-size: 72px;
+  }
+
+  .button {
+    background-color: #e7e7e7;  /* Gray */
+    color: black;
+    border: none;
+    padding: 5px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    border-radius: 2px;
+    margin: 1px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+  }
+
+  input {
+    margin: 1px;
+    display: inline-block;
+    font-size: 12px;
+    border-radius: 2px;
+    padding: 5px 15px;
+    font-weight: bold;
+    text-transform: uppercase; 
+  }
+
+  .button:hover {
+    background-color: #b4b4b4
+    
+    }
+
+  .button:active {
+    background-color: #919191;
   }
 
 </style>
