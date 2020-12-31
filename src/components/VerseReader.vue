@@ -1,7 +1,7 @@
 <template>
   <div id="baseDiv" @contextmenu="rightClickHandler($event)">
     <div id="inputBar">
-      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput"/>
+      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput" @paste="onPasteVerseAddress"/>
       <button @click="onClickGo">Go</button>
       <span style="margin-left: 30px;">
         <button @click="showNextVerse(false)">&#60; Prev</button>
@@ -39,7 +39,13 @@ var bookNamesFilename = 'books.json'
 var sourceFileExt = '.json'
 var maxBookCount = 66
 let MAX_VERSE_CHAPTER_INDICATOR = -1
-
+let verseAddressRegex =
+          ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
+                  + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
+                  + "\\s+"      // space after book
+                  + "(\\d+)"  // chapter
+                  + "(?:\\.|:|\\s+)" // chapter-verse separator
+                  + "(\\d+)") // verse
 
 export default {
   name: 'HelloWorld',
@@ -72,17 +78,20 @@ export default {
     }
   },
   watch: {
-    verseAddress: function() {
-      this.fetchVerseContent()
+    verseAddress: function(newVal) {
+      this.fetchVerseContent(newVal)
     }
   },
   methods: {
     onClickGo: function() {
+      this.processVerseInput(this.verseAddressInput)
+    },
+    processVerseInput: function(verseInput) {
       this.errorDisplay = null
       try {
-        this.verseAddress = this.parseVerseInput(this.verseAddressInput)
-        this.fetchVerseContent(this.verseAddress, this.displayVerseContent)
-        
+        let verseAddress = this.parseVerseInput(verseInput)
+        this.fetchVerseContent(verseAddress)
+        this.verseAddress = verseAddress // at this point, the verse address is validated
       } catch (error) {
         this.displayError(error)
       }
@@ -106,14 +115,13 @@ export default {
       event.preventDefault();
       this.focusInput()
     },
+    onPasteVerseAddress: function(event) {
+      let pasted = event.clipboardData.getData('text')
+      if (pasted.match(verseAddressRegex)) {
+        this.processVerseInput(pasted)
+      }
+    },
     parseVerseInput: function(verseInput) {
-      let verseAddressRegex =
-                ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
-                        + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
-                        + "\\s+"      // space after book
-                        + "(\\d+)"  // chapter
-                        + "(?:\\.|:|\\s+)" // chapter-verse separator
-                        + "(\\d+)") // verse
       let matchGroups = verseInput.match(verseAddressRegex)
 
       if (!matchGroups) {
@@ -162,16 +170,16 @@ export default {
       return str1.substring(0, str2.length) == str2 || str2.substring(0, str1.length) == str1
 
     },
-    fetchVerseContent: function() {
-      if (!this.bible[this.verseAddress.book]) {
-        let fetchUrl = baseUrl + this.verseAddress.book + sourceFileExt
+    fetchVerseContent: function(verseAddress) {
+      if (!this.bible[verseAddress.book]) {
+        let fetchUrl = baseUrl + verseAddress.book + sourceFileExt
 
         axios.get(fetchUrl).then(response => {
           this.bible[this.verseAddress.book] = response.data // cache the fetched book content
-          this.displayVerseContent(this.verseAddress)
+          this.displayVerseContent(verseAddress)
         })
       } else {
-        this.displayVerseContent(this.verseAddress)
+        this.displayVerseContent(verseAddress)
       }
     },
     fetchBookNames: function(callback) {
