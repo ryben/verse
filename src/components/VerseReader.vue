@@ -11,7 +11,7 @@
         <button @click="increaseFontSize(false)">-</button>
         <button @click="increaseFontSize(true)">+</button>
       </span>
-      <span id="errorDisplay" style="margin-left: 30px;">
+      <span id="errorDisplay" style="margin-left: 30px; color: darkred; font-weight: bold;">
         {{ errorDisplay }}
       </span>
     </div>
@@ -108,13 +108,18 @@ export default {
     },
     parseVerseInput: function(verseInput) {
       let verseAddressRegex =
-                ("(?:([iI]{1,3}|\\d+) )?" // number before book
+                ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
                         + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
-                        + "[. ]?"      // space after book
+                        + "\\s+"      // space after book
                         + "(\\d+)"  // chapter
-                        + "[ \\.:]" // chapter-verse separator
+                        + "(?:\\.|:|\\s+)" // chapter-verse separator
                         + "(\\d+)") // verse
       let matchGroups = verseInput.match(verseAddressRegex)
+
+      if (!matchGroups) {
+        throw 'Invalid input'
+      }
+
       let bookInput = matchGroups[2]
 
       if (matchGroups[1]) { // Number before book e.g. the "2" in "2 Hari"
@@ -124,7 +129,7 @@ export default {
       let bookMatch = this.findBookMatch(bookInput)
 
       return {
-        'book': bookMatch, //matchGroups[2],
+        'book': bookMatch,
         'chapter': matchGroups[3] + '',
         'verse': matchGroups[4] + ''
       }
@@ -140,9 +145,22 @@ export default {
 
       if (bookMatches.length == 1) {
         return bookMatches[0] + 1 // offset of 1 since book number starts with 1
+      } else if (bookMatches.length == 2) {
+        let match1 = this.bookNames[bookMatches[0]]
+        let match2 = this.bookNames[bookMatches[1]]
+        if (this.isSubstringOfOther(match1, match2)) {
+          return 1 + (match1.length < match2.length ? bookMatches[0] : bookMatches[1])
+        }
       } else {
         throw 'Invalid book name entered' // TODO: Add hint for possible matches
       }
+    },
+    isSubstringOfOther(str1, str2) {
+      str1 = str1.toLowerCase()
+      str2 = str2.toLowerCase()
+      
+      return str1.substring(0, str2.length) == str2 || str2.substring(0, str1.length) == str1
+
     },
     fetchVerseContent: function() {
       if (!this.bible[this.verseAddress.book]) {
