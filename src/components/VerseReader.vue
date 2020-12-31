@@ -79,6 +79,7 @@ export default {
   },
   watch: {
     verseAddress: function(newVal) {
+      this.errorDisplay = null
       this.fetchVerseContent(newVal)
     }
   },
