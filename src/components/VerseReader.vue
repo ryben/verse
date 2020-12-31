@@ -21,7 +21,7 @@
       </div>
     </div>
     <div id="controlBar">
-      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput" @paste="onPasteVerseAddress"/>
+      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" id="verseInput" ref="verseInput" @paste="onPasteVerseAddress"/>
       <a class="button" @click="onClickGo">Go</a>
       <span style="margin-left: 15px;">
         <a class="button" @click="showNextVerse(false)">◀ Prev</a>
@@ -336,7 +336,7 @@ export default {
     font-weight: bold;
   }
 
-  input {
+  #verseInput {
     margin: 1px;
     display: inline-block;
     font-size: 12px;
@@ -344,6 +344,7 @@ export default {
     padding: 5px 15px;
     font-weight: bold;
     text-transform: uppercase; 
+    width: 100px;
   }
 
   .button:hover {
