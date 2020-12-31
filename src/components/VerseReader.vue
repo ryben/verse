@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="baseDiv" @contextmenu="rightClickHandler($event)">
     <div id="inputBar">
       <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput"/>
       <button @click="onClickGo">Go</button>
@@ -8,15 +8,18 @@
       {{ errorDisplay }}
     </div>
     <br/>
-    <div id="verseTitle">
-      {{ verseTitle }}
-    </div>
-    <div id="verseTranslation">
-      {{ verseTranslation }}
-    </div>
-    <br/>
-    <div id="verseContent">
-      {{ verseContent }}
+    <div id="verseContainer">
+      <div id="verseTitle">
+        {{ verseTitle.toUpperCase() }}
+      </div>
+      <div id="verseTranslation">
+        {{ verseTranslation.toUpperCase() }}
+      </div>
+      <br/>
+      <br/>
+      <div id="verseContent">
+        {{ verseContent }}
+      </div>
     </div>
   </div>
 </template>
@@ -36,7 +39,7 @@ export default {
   data: function() {
     return {
       bible: {},
-      bookNames: ['Genesis', 'Exodo', 'Levitico', 'Bilang', 'Deuteronomio'],
+      bookNames: ['Genesis'],
       verseAddressInput: 'Genesis 1:1',
       verseTitle: 'Genesis 1:1',
       verseTranslation: 'Ang Dating Biblia',
@@ -48,10 +51,8 @@ export default {
     // TODO: Make sure booknames are loaded first
     this.fetchBookNames()
     this.onClickGo()
+    this.focusInput()
 
-    let verseInput = this.$refs.verseInput
-    verseInput.focus()
-    verseInput.select()
   },
   methods: {
     onClickGo: function() {
@@ -64,6 +65,15 @@ export default {
       } catch (error) {
         this.displayError(error)
       }
+    },
+    focusInput: function() {
+      let verseInput = this.$refs.verseInput
+      verseInput.focus()
+      verseInput.select()
+    },
+    rightClickHandler: function(event) {
+      event.preventDefault();
+      this.focusInput()
     },
     parseVerseInput: function(verseInput) {
       let verseAddressRegex =
@@ -138,3 +148,30 @@ export default {
   }
 }
 </script>
+
+<style>
+  #verseContainer {
+    padding: 50px;
+    margin: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  #verseTitle {
+    font-size: 50px;
+    color: white;
+  }
+
+  #verseTranslation {
+    font-size: 35px;
+    color: yellow;
+    font-style: oblique;
+  }
+
+  #verseContent {
+    font-size: 72px;
+    color: white;
+    text-align: center;
+  }
+</style>
