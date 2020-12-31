@@ -91,7 +91,6 @@ export default {
       try {
         let verseAddress = this.parseVerseInput(verseInput)
         this.fetchVerseContent(verseAddress)
-        this.verseAddress = verseAddress // at this point, the verse address is validated
       } catch (error) {
         this.displayError(error)
       }
@@ -175,7 +174,7 @@ export default {
         let fetchUrl = baseUrl + verseAddress.book + sourceFileExt
 
         axios.get(fetchUrl).then(response => {
-          this.bible[this.verseAddress.book] = response.data // cache the fetched book content
+          this.bible[verseAddress.book] = response.data // cache the fetched book content
           this.displayVerseContent(verseAddress)
         })
       } else {
@@ -210,7 +209,8 @@ export default {
         } else {
           throw 'Verse not found'
         }
-
+        
+        this.verseAddress = verseAddress // at this point, the verse address is validated, save the current verse address
       } catch (error) {
         this.displayError('Verse not found')
       }
