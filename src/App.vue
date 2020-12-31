@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <HelloWorld/>
+    <VerseReader/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import VerseReader from './components/VerseReader.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    VerseReader
   }
 }
 </script>

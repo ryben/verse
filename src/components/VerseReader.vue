@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="inputBar">
-      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo"/>
+      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput"/>
       <button @click="onClickGo">Go</button>
     </div>
     <div id="errorDisplay">
@@ -48,6 +48,10 @@ export default {
     // TODO: Make sure booknames are loaded first
     this.fetchBookNames()
     this.onClickGo()
+
+    let verseInput = this.$refs.verseInput
+    verseInput.focus()
+    verseInput.select()
   },
   methods: {
     onClickGo: function() {
