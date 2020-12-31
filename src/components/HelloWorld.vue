@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="inputBar">
-      <input v-model="verseAddressInput"/>
+      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo"/>
       <button @click="onClickGo">Go</button>
     </div>
     <div id="errorDisplay">
@@ -24,6 +24,10 @@
 <script>
 import axios from 'axios'
 
+var baseUrl = 'https://ryben.github.io/verse/verses/' // TODO: Put constants in one place
+var bookNamesFilename = 'books.json'
+var sourceFileExt = '.json'
+
 export default {
   name: 'HelloWorld',
   props: {
@@ -36,11 +40,14 @@ export default {
       verseAddressInput: 'Genesis 1:1',
       verseTitle: 'Genesis 1:1',
       verseTranslation: 'Ang Dating Biblia',
-      verseContent: 'Nang pasimula ay...',
+      verseContent: '',
       errorDisplay: null
     }
   },
   mounted: function() {
+    // TODO: Make sure booknames are loaded first
+    this.fetchBookNames()
+    this.onClickGo()
   },
   methods: {
     onClickGo: function() {
@@ -49,9 +56,9 @@ export default {
         let verseAddress = this.parseVerseInput(this.verseAddressInput)
 
         this.fetchVerseContent(verseAddress, this.displayVerseContent)
-        this.verseTitle = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
+        
       } catch (error) {
-        this.errorDisplay = error
+        this.displayError(error)
       }
     },
     parseVerseInput: function(verseInput) {
@@ -85,15 +92,13 @@ export default {
       if (bookMatches.length == 1) {
         return bookMatches[0] + 1 // offset of 1 since book number starts with 1
       } else {
-        throw 'Invalid book name entered'
+        throw 'Invalid book name entered' // TODO: Add hint for possible matches
       }
     },
     fetchVerseContent: function(verseAddress, callback) {
-      let baseUrl = 'https://ryben.github.io/verse/verses/'
-
       if (!this.bible[verseAddress.book]) {
-        let fetchUrl = baseUrl + verseAddress.book + '.json'
-        console.log(fetchUrl)
+        let fetchUrl = baseUrl + verseAddress.book + sourceFileExt
+
         axios.get(fetchUrl).then(response => {
           this.bible[verseAddress.book] = response.data // cache the fetched book content
           callback(verseAddress)
@@ -102,8 +107,28 @@ export default {
         callback(verseAddress)
       }
     },
+    fetchBookNames: function() {
+      let fetchUrl = baseUrl + bookNamesFilename
+      axios.get(fetchUrl).then(response => {
+        this.bookNames = response.data
+      })
+    },
     displayVerseContent: function(verseAddress) {
-      this.verseContent = this.bible[verseAddress.book][verseAddress.chapter][verseAddress.verse]
+      try {
+        let verseContent = this.bible[verseAddress.book][verseAddress.chapter][verseAddress.verse]
+        if (verseContent) {
+          this.verseContent = verseContent
+          this.verseTitle = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
+        } else {
+          throw 'Verse not found'
+        }
+
+      } catch (error) {
+        this.displayError('Verse not found')
+      }
+    },
+    displayError: function(errorMsg) {
+      this.errorDisplay = errorMsg
     }
 
   }
