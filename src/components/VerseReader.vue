@@ -3,6 +3,17 @@
     <div id="inputBar">
       <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput"/>
       <button @click="onClickGo">Go</button>
+
+      <span style="margin-left: 30px;">
+        <button @click="showNextVerse(false)">&#60; Prev</button>
+        <button @click="showNextVerse(true)">Next &#62;</button>
+      </span>
+
+      <span style="margin-left: 30px;">
+        <button @click="increaseFontSize(true)">+</button>
+        <button @click="increaseFontSize(false)">-</button>
+      </span>
+
     </div>
     <div id="errorDisplay">
       {{ errorDisplay }}
@@ -16,7 +27,7 @@
       </div>
       <br/>
       <br/>
-      <div id="verseContent">
+      <div id="verseContent" :style="verseFont">
         {{ verseContent }}
       </div>
     </div>
@@ -29,6 +40,9 @@ import axios from 'axios'
 var baseUrl = 'https://ryben.github.io/verse/verses/' // TODO: Put constants in one place
 var bookNamesFilename = 'books.json'
 var sourceFileExt = '.json'
+var maxBookCount = 66
+let MAX_VERSE_CHAPTER_INDICATOR = -1
+
 
 export default {
   name: 'HelloWorld',
@@ -42,8 +56,10 @@ export default {
       verseAddressInput: 'Genesis 1:1',
       verseTitle: 'Genesis 1:1',
       verseTranslation: 'Ang Dating Biblia',
+      verseAddress: {},
       verseContent: '',
-      errorDisplay: null
+      errorDisplay: null,
+      verseFontSize: 72
     }
   },
   mounted: function() {
@@ -53,13 +69,25 @@ export default {
     this.focusInput()
 
   },
+  computed: {
+    verseFont() {
+      return {
+          fontSize: this.verseFontSize + 'px',
+          fontFamily: 'Helvetica'
+      }
+    }
+  },
+  watch: {
+    verseAddress: function() {
+      this.fetchVerseContent()
+    }
+  },
   methods: {
     onClickGo: function() {
       this.errorDisplay = null
       try {
-        let verseAddress = this.parseVerseInput(this.verseAddressInput)
-
-        this.fetchVerseContent(verseAddress, this.displayVerseContent)
+        this.verseAddress = this.parseVerseInput(this.verseAddressInput)
+        this.fetchVerseContent(this.verseAddress, this.displayVerseContent)
         
       } catch (error) {
         this.displayError(error)
@@ -112,16 +140,16 @@ export default {
         throw 'Invalid book name entered' // TODO: Add hint for possible matches
       }
     },
-    fetchVerseContent: function(verseAddress, callback) {
-      if (!this.bible[verseAddress.book]) {
-        let fetchUrl = baseUrl + verseAddress.book + sourceFileExt
+    fetchVerseContent: function() {
+      if (!this.bible[this.verseAddress.book]) {
+        let fetchUrl = baseUrl + this.verseAddress.book + sourceFileExt
 
         axios.get(fetchUrl).then(response => {
-          this.bible[verseAddress.book] = response.data // cache the fetched book content
-          callback(verseAddress)
+          this.bible[this.verseAddress.book] = response.data // cache the fetched book content
+          this.displayVerseContent(this.verseAddress)
         })
       } else {
-        callback(verseAddress)
+        this.displayVerseContent(this.verseAddress)
       }
     },
     fetchBookNames: function() {
@@ -132,7 +160,18 @@ export default {
     },
     displayVerseContent: function(verseAddress) {
       try {
-        let verseContent = this.bible[verseAddress.book][verseAddress.chapter][verseAddress.verse]
+        let bookContent = this.bible[verseAddress.book]
+        if (verseAddress.chapter == MAX_VERSE_CHAPTER_INDICATOR) {
+          verseAddress.chapter = Object.keys(bookContent).length
+        }
+
+        let chapterContent = bookContent[verseAddress.chapter]
+        if (verseAddress.verse == MAX_VERSE_CHAPTER_INDICATOR) {
+          verseAddress.verse = Object.keys(chapterContent).length
+        }
+
+        let verseContent = chapterContent[verseAddress.verse]
+
         if (verseContent) {
           this.verseContent = verseContent
           this.verseTitle = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
@@ -144,8 +183,50 @@ export default {
         this.displayError('Verse not found')
       }
     },
+    showNextVerse: function(isNextVerse) {
+      let book = this.verseAddress.book
+      let chapter = this.verseAddress.chapter
+      let verse = this.verseAddress.verse
+
+      if (isNextVerse) {
+        verse++
+      } else {
+        verse--
+      }
+
+      if (verse > Object.keys(this.bible[book][chapter]).length) {
+        chapter++
+        verse = 1
+      } else if (verse < 1) {
+        chapter--
+        verse = MAX_VERSE_CHAPTER_INDICATOR
+      }
+
+      if (chapter > Object.keys(this.bible[book]).length) {
+        book++
+        chapter = 1
+      } else if (chapter < 1) {
+        book--
+        chapter = MAX_VERSE_CHAPTER_INDICATOR
+      }
+
+      if (book > maxBookCount) {
+        book = 1
+      } else if (book < 1) {
+        book = maxBookCount
+      }
+
+      this.verseAddress =  {
+        'book': book,
+        'chapter': chapter,
+        'verse': verse
+      }
+    },
     displayError: function(errorMsg) {
       this.errorDisplay = errorMsg
+    },
+    increaseFontSize: function(isIncrease) {
+      this.verseFontSize += (3 * (isIncrease ? 1 : -1))
     }
 
   }
@@ -163,7 +244,7 @@ export default {
 
   #verseContainer {
     padding: 50px;
-    background: rgba(2, 2, 2, 0.6);
+    background: rgba(2, 2, 2, 0.7);
     border-radius: 50px;
     font-family: Arial, Helvetica, sans-serif;
     height: 77%;
@@ -172,21 +253,20 @@ export default {
   }
 
   #verseTitle {
-    font-size: 50px;
     color: white;
-    font-size: 2.5vw;
+    font-size: 50px;
   }
 
   #verseTranslation {
-    font-size: 35px;
     color: yellow;
     font-style: oblique;
-    font-size: 1.5vw;
+    font-size: 35px;
   }
 
   #verseContent {
     color: white;
     text-align: center;
-    font-size: 3.5vw;
+    font-size: 72px;
   }
+
 </style>
