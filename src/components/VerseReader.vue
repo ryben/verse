@@ -7,7 +7,6 @@
     <div id="errorDisplay">
       {{ errorDisplay }}
     </div>
-    <br/>
     <div id="verseContainer">
       <div id="verseTitle">
         {{ verseTitle.toUpperCase() }}
@@ -86,6 +85,10 @@ export default {
       let matchGroups = verseInput.match(verseAddressRegex)
       let bookInput = matchGroups[2]
 
+      if (matchGroups[1]) { // Number before book e.g. the "2" in "2 Hari"
+        bookInput = matchGroups[1] + ' ' + matchGroups[2]
+      }
+
       let bookMatch = this.findBookMatch(bookInput)
 
       return {
@@ -150,28 +153,40 @@ export default {
 </script>
 
 <style>
+  #baseDiv {
+    height: 100%;
+  }
+
+  #inputBar {
+    padding: 30px;
+  }
+
   #verseContainer {
     padding: 50px;
-    margin: 20px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(2, 2, 2, 0.6);
     border-radius: 50px;
     font-family: Arial, Helvetica, sans-serif;
+    height: 77%;
+    margin-left: 30px;
+    margin-right: 30px;
   }
 
   #verseTitle {
     font-size: 50px;
     color: white;
+    font-size: 2.5vw;
   }
 
   #verseTranslation {
     font-size: 35px;
     color: yellow;
     font-style: oblique;
+    font-size: 1.5vw;
   }
 
   #verseContent {
-    font-size: 72px;
     color: white;
     text-align: center;
+    font-size: 3.5vw;
   }
 </style>
