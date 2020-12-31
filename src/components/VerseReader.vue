@@ -3,20 +3,17 @@
     <div id="inputBar">
       <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" ref="verseInput"/>
       <button @click="onClickGo">Go</button>
-
       <span style="margin-left: 30px;">
         <button @click="showNextVerse(false)">&#60; Prev</button>
         <button @click="showNextVerse(true)">Next &#62;</button>
       </span>
-
       <span style="margin-left: 30px;">
-        <button @click="increaseFontSize(true)">+</button>
         <button @click="increaseFontSize(false)">-</button>
+        <button @click="increaseFontSize(true)">+</button>
       </span>
-
-    </div>
-    <div id="errorDisplay">
-      {{ errorDisplay }}
+      <span id="errorDisplay" style="margin-left: 30px;">
+        {{ errorDisplay }}
+      </span>
     </div>
     <div id="verseContainer">
       <div id="verseTitle">
@@ -64,10 +61,7 @@ export default {
   },
   mounted: function() {
     // TODO: Make sure booknames are loaded first
-    this.fetchBookNames()
-    this.onClickGo()
-    this.focusInput()
-
+    this.fetchBookNames(this.loadParamQuery)
   },
   computed: {
     verseFont() {
@@ -92,6 +86,16 @@ export default {
       } catch (error) {
         this.displayError(error)
       }
+    },
+    loadParamQuery: function() {
+      var url = new URL(window.location.href);
+      let verseParam = url.searchParams.get('v')
+      if (verseParam) {
+        this.verseAddressInput = verseParam
+      }
+
+      this.onClickGo()
+      this.focusInput()
     },
     focusInput: function() {
       let verseInput = this.$refs.verseInput
@@ -152,10 +156,11 @@ export default {
         this.displayVerseContent(this.verseAddress)
       }
     },
-    fetchBookNames: function() {
+    fetchBookNames: function(callback) {
       let fetchUrl = baseUrl + bookNamesFilename
       axios.get(fetchUrl).then(response => {
         this.bookNames = response.data
+        callback()
       })
     },
     displayVerseContent: function(verseAddress) {
@@ -175,6 +180,7 @@ export default {
         if (verseContent) {
           this.verseContent = verseContent
           this.verseTitle = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
+
         } else {
           throw 'Verse not found'
         }
