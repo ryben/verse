@@ -290,9 +290,12 @@ export default {
   }
 
   #verseContainer {
-    padding: 50px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    padding-left: 100px;
+    padding-right: 100px;
     background: rgba(2, 2, 2, 0.7);
-    border-radius: 50px;
+    border-radius: 80px;
     font-family: Arial, Helvetica, sans-serif;
     height: 77%;
     position: absolute;
@@ -311,6 +314,7 @@ export default {
     color: yellow;
     font-style: oblique;
     font-size: 35px;
+    margin-top: 10px;
   }
 
   #verseContent {
