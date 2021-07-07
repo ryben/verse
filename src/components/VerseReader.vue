@@ -168,6 +168,8 @@ export default {
         let match2 = this.bookNames[bookMatches[1]]
         if (this.isSubstringOfOther(match1, match2)) {
           return 1 + (match1.length < match2.length ? bookMatches[0] : bookMatches[1])
+        } else {
+          return bookMatches[0] + 1 // return the first match
         }
       } else {
         throw 'Invalid book name entered' // TODO: Add hint for possible matches
