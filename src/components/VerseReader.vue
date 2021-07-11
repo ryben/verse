@@ -199,7 +199,6 @@ export default {
       if (!this.bible[this.verseTranslation][verseAddress.book]) {
         let fetchUrl = baseUrl + this.verseTranslation + '/' + verseAddress.book + '' + sourceFileExt
 
-        console.log(fetchUrl)
         axios.get(fetchUrl).then(response => {
           this.bible[this.verseTranslation][verseAddress.book] = response.data // cache the fetched book content
           this.displayVerseContent(verseAddress)
@@ -209,7 +208,7 @@ export default {
       }
     },
     fetchBookNames: function(callback) {
-      let fetchUrl = baseUrl + bookNamesFilename
+      let fetchUrl = baseUrl + this.verseTranslation + "/" + bookNamesFilename
       axios.get(fetchUrl).then(response => {
         this.bookNames = response.data
         callback()
@@ -250,6 +249,7 @@ export default {
         if (verseContent) {
           this.verseInfo.content = verseContent
           this.verseInfo.title = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
+          this.verseInfo.translation = this.translations[this.verseTranslation]
         } else {
           throw 'Verse not found'
         }
