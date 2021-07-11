@@ -9,19 +9,22 @@
         @keydown.down="increaseFontSize(false)"
         @keydown.up="increaseFontSize(true)">
       <div id="verseTitle">
-        {{ verseTitle.toUpperCase() }}
+        {{ verseInfo.title.toUpperCase() }}
       </div>
       <div id="verseTranslation">
-        {{ verseTranslation.toUpperCase() }}
+        {{ verseInfo.translation.toUpperCase() }}
       </div>
       <br/>
       <br/>
       <div id="verseContent" :style="verseFont">
-        {{ verseContent }}
+        {{ verseInfo.content }}
       </div>
     </div>
     <div id="controlBar">
       <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" id="verseInput" ref="verseInput" @paste="onPasteVerseAddress"/>
+      <select name="translation" id="translationInput" v-model="verseTranslation">
+        <option v-for="(value, key) in translations" :value="key" v-bind:key="key">{{ value }}</option>
+      </select>
       <a class="button" @click="onClickGo">Go</a>
       <span style="margin-left: 15px;">
         <a class="button" @click="showNextVerse(false)">◀ Prev</a>
@@ -43,6 +46,7 @@ import axios from 'axios'
 
 var baseUrl = 'https://ryben.github.io/verse/verses/' // TODO: Put constants in one place
 var bookNamesFilename = 'books.json'
+var translationsFilename = 'translations.json'
 var sourceFileExt = '.json'
 var maxBookCount = 66
 let MAX_VERSE_CHAPTER_INDICATOR = -1
@@ -63,11 +67,15 @@ export default {
     return {
       bible: {},
       bookNames: ['Genesis'],
+      translations: {'adb' : 'Ang Dating Biblia'},
       verseAddressInput: 'Genesis 1:1',
-      verseTitle: 'Genesis 1:1',
-      verseTranslation: 'Ang Dating Biblia',
+      verseTranslation: 'adb',
+      verseInfo: {
+        title: 'Genesis 1:1',
+        translation: 'Ang Dating Biblia',
+        content: ''
+      },
       verseAddress: {},
-      verseContent: '',
       errorDisplay: null,
       verseFontSize: 72
     }
@@ -75,6 +83,8 @@ export default {
   mounted: function() {
     // TODO: Make sure booknames are loaded first
     this.fetchBookNames(this.loadParamQuery)
+    // this.fetchTranslations()
+    this.fetchTranslationsStub()
   },
   computed: {
     verseFont() {
@@ -88,6 +98,11 @@ export default {
     verseAddress: function(newVal) {
       this.errorDisplay = null
       this.fetchVerseContent(newVal)
+    },
+    verseTranslation: function(newVal) {
+      this.errorDisplay = null
+      this.verseAddress['translation'] = newVal
+      this.fetchVerseContent(this.verseAddress)
     }
   },
   methods: {
@@ -100,7 +115,7 @@ export default {
         let verseAddress = this.parseVerseInput(verseInput)
         this.fetchVerseContent(verseAddress)
       } catch (error) {
-        this.displayError(error)
+        this.displayError('Caught exception: ' + error)
       }
     },
     loadParamQuery: function() {
@@ -121,9 +136,6 @@ export default {
     rightClickHandler: function(event) {
       event.preventDefault();
       this.focusInput()
-    },
-    onArrowRight: function() {
-      alert('Right!')
     },
     onPasteVerseAddress: function(event) {
       let pasted = event.clipboardData.getData('text')
@@ -146,7 +158,9 @@ export default {
 
       let bookMatch = this.findBookMatch(bookInput)
 
+
       return {
+        'translation': this.verseTranslation,
         'book': bookMatch,
         'chapter': matchGroups[3] + '',
         'verse': matchGroups[4] + ''
@@ -180,14 +194,14 @@ export default {
       str2 = str2.toLowerCase()
       
       return str1.substring(0, str2.length) == str2 || str2.substring(0, str1.length) == str1
-
     },
     fetchVerseContent: function(verseAddress) {
-      if (!this.bible[verseAddress.book]) {
-        let fetchUrl = baseUrl + verseAddress.book + sourceFileExt
+      if (!this.bible[this.verseTranslation][verseAddress.book]) {
+        let fetchUrl = baseUrl + this.verseTranslation + '/' + verseAddress.book + '' + sourceFileExt
 
+        console.log(fetchUrl)
         axios.get(fetchUrl).then(response => {
-          this.bible[verseAddress.book] = response.data // cache the fetched book content
+          this.bible[this.verseTranslation][verseAddress.book] = response.data // cache the fetched book content
           this.displayVerseContent(verseAddress)
         })
       } else {
@@ -201,9 +215,27 @@ export default {
         callback()
       })
     },
+    fetchTranslationsStub: function() {
+      let response = {
+        "adb" : "Ang Dating Biblia",
+        "kjv" : "King James Version"
+      }
+      Object.keys(response).forEach(key => {
+        this.bible[key] = {}
+      });
+      this.translations = response
+    },
+    fetchTranslations: function() {
+      let fetchUrl = baseUrl + translationsFilename
+      axios.get(fetchUrl).then(response => {
+        this.translations = response.data
+      })
+    },
     displayVerseContent: function(verseAddress) {
       try {
-        let bookContent = this.bible[verseAddress.book]
+        let bookContent = this.bible[this.verseTranslation][verseAddress.book]
+
+        // MAX_VERSE_CHAPTER_INDICATOR is set as value of chapter/verse when next/previous button is tapped and bounds are reached
         if (verseAddress.chapter == MAX_VERSE_CHAPTER_INDICATOR) {
           verseAddress.chapter = Object.keys(bookContent).length
         }
@@ -216,9 +248,8 @@ export default {
         let verseContent = chapterContent[verseAddress.verse]
 
         if (verseContent) {
-          this.verseContent = verseContent
-          this.verseTitle = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
-
+          this.verseInfo.content = verseContent
+          this.verseInfo.title = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
         } else {
           throw 'Verse not found'
         }
@@ -239,15 +270,17 @@ export default {
         verse--
       }
 
-      if (verse > Object.keys(this.bible[book][chapter]).length) {
+      // if reached the end of the chapter
+      if (verse > Object.keys(this.bible[this.verseTranslation][book][chapter]).length) {
         chapter++
         verse = 1
-      } else if (verse < 1) {
+      } else if (verse < 1) { // if at start of chapter
         chapter--
         verse = MAX_VERSE_CHAPTER_INDICATOR
       }
 
-      if (chapter > Object.keys(this.bible[book]).length) {
+      // if reached the end of the book
+      if (chapter > Object.keys(this.bible[this.verseTranslation][book]).length) {
         book++
         chapter = 1
       } else if (chapter < 1) {
@@ -255,6 +288,7 @@ export default {
         chapter = MAX_VERSE_CHAPTER_INDICATOR
       }
 
+      // if reached end of the bible
       if (book > maxBookCount) {
         book = 1
       } else if (book < 1) {
@@ -351,6 +385,17 @@ export default {
     font-weight: bold;
     text-transform: uppercase; 
     width: 100px;
+  }
+
+  #translationInput {
+    display: inline-block;
+    font-size: 11px;
+    border-radius: 2px;
+    padding: 5px 5px;
+    font-weight: bold;
+    text-transform: uppercase; 
+    width: 200px;
+    background-color: rgb(226, 226, 226);
   }
 
   .button:hover {
