@@ -44,6 +44,9 @@
 <script>
 import axios from 'axios'
 
+let KEY_VERSE_ADDRESS = "KEY_VERSE_ADDRESS"
+let KEY_VERSE_FONT_SIZE = "KEY_VERSE_FONT_SIZE"
+
 var baseUrl = 'https://ryben.github.io/verse/verses/' // TODO: Put constants in one place
 var bookNamesFilename = 'books.json'
 var translationsFilename = 'translations.json'
@@ -85,6 +88,8 @@ export default {
     this.fetchBookNames(this.loadParamQuery)
     // this.fetchTranslations()
     this.fetchTranslationsStub()
+
+    window.addEventListener('storage', () => {this.loadFromLocalStorage()})
   },
   computed: {
     verseFont() {
@@ -103,17 +108,33 @@ export default {
       this.errorDisplay = null
       this.verseAddress['translation'] = newVal
       this.fetchVerseContent(this.verseAddress)
+      this.saveToLocalStorage(this.verseAddress)
     }
   },
   methods: {
+    saveToLocalStorage: function(verseAddress) {
+			localStorage.setItem(KEY_VERSE_ADDRESS, JSON.stringify(verseAddress))
+		},
+    saveFontSizeToLocalStorage: function(fontSize) {
+			localStorage.setItem(KEY_VERSE_FONT_SIZE, fontSize)
+		},
+		loadFromLocalStorage: function() {
+      let savedVerseAddress = localStorage.getItem(KEY_VERSE_ADDRESS)
+			this.verseAddress = JSON.parse(savedVerseAddress)
+
+      let fontSize = localStorage.getItem(KEY_VERSE_FONT_SIZE)
+      this.verseFontSize = fontSize
+		},
     onClickGo: function() {
-      this.processVerseInput(this.verseAddressInput)
+      let verseAddress = this.processVerseInput(this.verseAddressInput)
+      this.saveToLocalStorage(verseAddress)
     },
     processVerseInput: function(verseInput) {
       this.errorDisplay = null
       try {
         let verseAddress = this.parseVerseInput(verseInput)
         this.fetchVerseContent(verseAddress)
+        return verseAddress
       } catch (error) {
         this.displayError('Caught exception: ' + error)
       }
@@ -125,7 +146,7 @@ export default {
         this.verseAddressInput = verseParam
       }
 
-      this.onClickGo()
+      this.processVerseInput(this.verseAddressInput)
       this.focusInput()
     },
     focusInput: function() {
@@ -196,6 +217,10 @@ export default {
       return str1.substring(0, str2.length) == str2 || str2.substring(0, str1.length) == str1
     },
     fetchVerseContent: function(verseAddress) {
+      if (this.verseTranslation != verseAddress['translation']) {
+        this.verseTranslation = verseAddress['translation']
+      }
+
       if (!this.bible[this.verseTranslation][verseAddress.book]) {
         let fetchUrl = baseUrl + this.verseTranslation + '/' + verseAddress.book + '' + sourceFileExt
 
@@ -296,16 +321,20 @@ export default {
       }
 
       this.verseAddress =  {
+        'translation': this.verseTranslation,
         'book': book,
         'chapter': chapter,
         'verse': verse
       }
+
+      this.saveToLocalStorage(this.verseAddress)
     },
     displayError: function(errorMsg) {
       this.errorDisplay = errorMsg
     },
     increaseFontSize: function(isIncrease) {
       this.verseFontSize += (3 * (isIncrease ? 1 : -1))
+      this.saveFontSizeToLocalStorage(this.verseFontSize)
     }
 
   }
