@@ -173,8 +173,13 @@ export default {
 
       let bookInput = matchGroups[2]
 
+      // special shorthand
+      if (bookInput.toLowerCase() == 'jn') {
+          bookInput = "juan"
+      }
+
       if (matchGroups[1]) { // Number before book e.g. the "2" in "2 Hari"
-        bookInput = matchGroups[1] + ' ' + matchGroups[2]
+        bookInput = matchGroups[1] + ' ' + bookInput
       }
 
       let bookMatch = this.findBookMatch(bookInput)
