@@ -6,6 +6,9 @@
        tabindex="0"
         @keydown.left="showNextVerse(false)"
         @keydown.right="showNextVerse(true)"
+        @keydown.page-up="showNextVerse(false)"
+        @keydown.page-down="showNextVerse(true)"
+        @keydown.esc="focusInput()"
         @keydown.down="increaseFontSize(false)"
         @keydown.up="increaseFontSize(true)">
       <div id="verseTitle">
@@ -21,7 +24,14 @@
       </div>
     </div>
     <div id="controlBar">
-      <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" id="verseInput" ref="verseInput" @paste="onPasteVerseAddress"/>
+      <input
+        v-model="verseAddressInput"
+        v-on:keyup.enter="onClickGo"
+        v-on:keyup.up="showNextVerse(false)"
+        v-on:keyup.down="showNextVerse(true)"
+        v-on:keyup.page-up="showNextVerse(false)"
+        v-on:keyup.page-down="showNextVerse(true)"
+        id="verseInput" ref="verseInput" @paste="onPasteVerseAddress"/>
       <select name="translation" id="translationInput" v-model="verseTranslation">
         <option v-for="(value, key) in translations" :value="key" v-bind:key="key">{{ value }}</option>
       </select>
