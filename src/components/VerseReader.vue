@@ -32,18 +32,30 @@
         v-on:keyup.page-up="showNextVerse(false)"
         v-on:keyup.page-down="showNextVerse(true)"
         id="verseInput" ref="verseInput" @paste="onPasteVerseAddress"/>
-      <select name="translation" id="translationInput" v-model="verseTranslation">
+      <select name="translation" id="translationInput" class="selector" v-model="verseTranslation">
         <option v-for="(value, key) in translations" :value="key" v-bind:key="key">{{ value }}</option>
       </select>
       <a class="button" @click="onClickGo">Go</a>
       <span style="margin-left: 15px;">
-        <a class="button" @click="showNextVerse(false)">◀ Prev</a>
-        <a class="button" @click="showNextVerse(true)">Next ▶</a>
+        <a class="button" @click="showNextVerse(false)">&lt;  Prev</a>
+        <a class="button" @click="showNextVerse(true)">Next  &gt;</a>
       </span>
       <span style="margin-left: 15px;">
         <a class="button" @click="increaseFontSize(false)">−</a>
         <a class="button" @click="increaseFontSize(true)">+</a>
       </span>
+      <label class="toggle">
+        <input type="checkbox" v-model="isAddTextBg">
+        <span class="labels" data-on="With Text BG" data-off="As Is BG"></span>
+      </label>
+      <select id="bgSelector" class="selector" v-model="selectedBg">
+        <option v-for="(value, key) in backgrounds" :value="value" v-bind:key="key">{{ key }}</option>
+      </select>
+      <input
+        id="bgImgCustomUrlInput"
+        style="visibility:hidden;"
+        v-model="bgCustomImgUrl"
+      />
       <span id="errorDisplay" style="margin-left: 30px; color: darkred; font-weight: bold;">
         {{ errorDisplay }}
       </span>
@@ -56,6 +68,10 @@ import axios from 'axios'
 
 let KEY_VERSE_ADDRESS = "KEY_VERSE_ADDRESS"
 let KEY_VERSE_FONT_SIZE = "KEY_VERSE_FONT_SIZE"
+let KEY_IS_ADD_TEXT_BG = "KEY_IS_ADD_TEXT_BG"
+let KEY_BG_IMAGE = "KEY_BG_IMAGE"
+let KEY_BG_IMAGE_CUSTOM_URL = "KEY_BG_IMAGE_CUSTOM_URL"
+let BG_CUSTOM_URL = "BG_CUSTOM_URL"
 
 var baseUrl = 'https://ryben.github.io/verse/verses/' // TODO: Put constants in one place
 var bookNamesFilename = 'books.json'
@@ -81,6 +97,15 @@ export default {
       bible: {},
       bookNames: ['Genesis'],
       translations: {'adb' : 'Ang Dating Biblia'},
+      backgrounds: {
+        'Blue BG' : 'blue.jpg',
+        'Brown BG' : 'brown.jpg',
+        'Orange' : 'orange.jpg',
+        'Image URL' : BG_CUSTOM_URL
+      },
+      selectedBg : '',
+      bgCustomImgUrl : '',
+      isAddTextBg : false,
       verseAddressInput: 'Genesis 1:1',
       verseTranslation: 'adb',
       verseInfo: {
@@ -100,6 +125,13 @@ export default {
     this.fetchTranslationsStub()
 
     window.addEventListener('storage', () => {this.loadFromLocalStorage()})
+
+    this.loadBgSettingsFromLocalStorage()
+
+    // Check if has valid custom background
+    if (this.selectedBg == BG_CUSTOM_URL && this.isEmpty(this.bgCustomImgUrl)) {
+      this.selectDefaultBg()
+    }
   },
   computed: {
     verseFont() {
@@ -118,26 +150,77 @@ export default {
       this.errorDisplay = null
       this.verseAddress['translation'] = newVal
       this.fetchVerseContent(this.verseAddress)
-      this.saveToLocalStorage(this.verseAddress)
+      this.saveVerseToLocalStorage(this.verseAddress)
+    },
+    isAddTextBg: function(newVal) {
+      if (newVal == false) {
+        document.getElementById('verseContainer').style.background = ''
+      } else {
+        document.getElementById('verseContainer').style.background = '#00000099'
+      }
+      this.saveTextBgToLocalStorage(newVal)
+    },
+    selectedBg: function(newVal) {
+      this.onSelectBg(newVal)
+      this.saveBgImageToLocalStorage(newVal)
+    },
+    bgCustomImgUrl: function(newVal) {
+      this.onSelectBg(this.selectedBg)
+      this.saveBgImageCustomUrlToLocalStorage(newVal)
     }
   },
   methods: {
-    saveToLocalStorage: function(verseAddress) {
+    saveVerseToLocalStorage: function(verseAddress) {
 			localStorage.setItem(KEY_VERSE_ADDRESS, JSON.stringify(verseAddress))
 		},
     saveFontSizeToLocalStorage: function(fontSize) {
 			localStorage.setItem(KEY_VERSE_FONT_SIZE, fontSize)
 		},
+    saveTextBgToLocalStorage: function(isAddTextBg) {
+			localStorage.setItem(KEY_IS_ADD_TEXT_BG, isAddTextBg)
+		},
+    saveBgImageToLocalStorage: function(bgImage) {
+			localStorage.setItem(KEY_BG_IMAGE, bgImage)
+		},
+    saveBgImageCustomUrlToLocalStorage: function(bgCustomUrl) {
+			localStorage.setItem(KEY_BG_IMAGE_CUSTOM_URL, bgCustomUrl)
+		},
 		loadFromLocalStorage: function() {
       let savedVerseAddress = localStorage.getItem(KEY_VERSE_ADDRESS)
 			this.verseAddress = JSON.parse(savedVerseAddress)
 
-      let fontSize = localStorage.getItem(KEY_VERSE_FONT_SIZE)
-      this.verseFontSize = fontSize
+      let savedVerseFontSize = localStorage.getItem(KEY_VERSE_FONT_SIZE)
+      if (!isNaN(savedVerseFontSize)) {
+        this.verseFontSize = parseInt(savedVerseFontSize)
+      }
+
+      this.loadBgSettingsFromLocalStorage()
 		},
+    loadBgSettingsFromLocalStorage: function() {
+      let isAddTextBg = localStorage.getItem(KEY_IS_ADD_TEXT_BG)
+      this.isAddTextBg = isAddTextBg == 'true'
+
+      let bgCustomImgUrl = localStorage.getItem(KEY_BG_IMAGE_CUSTOM_URL)
+      this.bgCustomImgUrl = bgCustomImgUrl == null ? "" : bgCustomImgUrl
+
+      this.selectedBg = localStorage.getItem(KEY_BG_IMAGE)
+      if (this.selectedBg == null) {
+        this.selectDefaultBg()
+      }
+    },
+    selectDefaultBg() {
+      this.selectedBg = this.backgrounds[Object.keys(this.backgrounds)[0]]
+    },
+    isEmpty: function(someVar) {
+      if (someVar == "" || someVar == null || someVar == undefined) {
+        return true
+      } else {
+        return false
+      }
+    },
     onClickGo: function() {
       let verseAddress = this.processVerseInput(this.verseAddressInput)
-      this.saveToLocalStorage(verseAddress)
+      this.saveVerseToLocalStorage(verseAddress)
     },
     processVerseInput: function(verseInput) {
       this.errorDisplay = null
@@ -342,7 +425,7 @@ export default {
         'verse': verse
       }
 
-      this.saveToLocalStorage(this.verseAddress)
+      this.saveVerseToLocalStorage(this.verseAddress)
     },
     displayError: function(errorMsg) {
       this.errorDisplay = errorMsg
@@ -350,8 +433,60 @@ export default {
     increaseFontSize: function(isIncrease) {
       this.verseFontSize += (3 * (isIncrease ? 1 : -1))
       this.saveFontSizeToLocalStorage(this.verseFontSize)
-    }
+    },
+    onSelectBg: function(selectedBg) {
+      const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
 
+      if (selectedBg == BG_CUSTOM_URL) {
+        bgImgCustomUrlInput.style.visibility = 'visible'
+        this.applyBg(this.bgCustomImgUrl)
+      } else {
+        bgImgCustomUrlInput.style.visibility = 'hidden'
+        this.applyBg(require('@/assets/' + selectedBg))
+      }
+    },
+    applyBg: function(imgUrl) {
+      if (!this.isEmpty(imgUrl)) {
+        let processedUrl = this.processUrl(imgUrl)
+
+        const body = document.querySelector('body')
+        body.style.background = 'url(\'' + processedUrl + '\')'
+        body.style.backgroundSize = '100% 100%'
+      }
+    },
+    onEnterCustomUrl: function(event) {
+      this.applyBg(event.target.value)
+    },
+    onPasteCustomUrl: function(event) {
+      this.applyBg(event.clipboardData.getData("text"))
+    },
+    processUrl: function(url) {
+      let processedUrl = url
+      if (url.match(this.getGdriveShareLinkRegex())) {
+        processedUrl = this.gdriveLinkToUrl(processedUrl)
+      }
+
+      // check if url resolves to an image
+
+      return processedUrl
+    },
+    gdriveLinkToUrl: function(gdriveLink) {
+      let gdriveRegexLink =
+        ".*drive\\.google\\.com\\/file\\/d\\/" // GDrive share link start
+        + "(.*)" // book
+        + "\\/.*" // everything else after
+
+      let matchGroups = gdriveLink.match(gdriveRegexLink)
+      if (matchGroups) {
+        return 'https://drive.google.com/uc?id=' + matchGroups[1]
+      }
+      return ''
+    },
+    getGdriveShareLinkRegex: function() {
+      return ".*drive\\.google\\.com\\/file\\/d\\/" // GDrive share link start
+        + "(.*)" // book
+        + "\\/.*" // everything else after
+    }
   }
 }
 </script>
@@ -374,7 +509,7 @@ export default {
     padding-bottom: 50px;
     padding-left: 100px;
     padding-right: 100px;
-    background: rgba(2, 2, 2, 0.7);
+    /* background: rgba(2, 2, 2, 0.7); */
     border-radius: 80px;
     font-family: Arial, Helvetica, sans-serif;
     height: 77%;
@@ -420,7 +555,7 @@ export default {
     font-weight: bold;
   }
 
-  #verseInput {
+  input {
     margin: 1px;
     display: inline-block;
     font-size: 12px;
@@ -428,27 +563,106 @@ export default {
     padding: 5px 15px;
     font-weight: bold;
     text-transform: uppercase; 
+  }
+
+  #verseInput {
     width: 100px;
   }
 
-  #translationInput {
+  .selector {
     display: inline-block;
     font-size: 11px;
     border-radius: 2px;
     padding: 5px 5px;
     font-weight: bold;
     text-transform: uppercase; 
-    width: 200px;
     background-color: rgb(226, 226, 226);
+  }
+
+  #translationInput {
+    width: 200px;
   }
 
   .button:hover {
     background-color: #b4b4b4
-    
-    }
+  }
 
   .button:active {
     background-color: #919191;
   }
+
+  /* START Toggle */
+
+ .toggle {
+    --width: 80px;
+    --height: calc(var(--width) / 3.3);
+
+    position: relative;
+    display: inline-block;
+    width: var(--width);
+    height: var(--height);
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    margin-bottom: -8px;
+    font-weight: bold;
+    margin-left: 20px;
+  }
+
+  .toggle input {
+    display: none;
+  }
+
+  .toggle .labels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 12px;
+    font-family: sans-serif;
+    transition: all 0.4s ease-in-out;
+    overflow: hidden;
+  }
+
+  .toggle .labels::after {
+    content: attr(data-off);
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    color: #4d4d4d;
+    background-color: rgb(226, 226, 226);
+    transition: all 0.1s ease-in-out;
+  }
+
+  .toggle .labels::before {
+    content: attr(data-on);
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: calc(var(--width) * -1);
+    height: 100%;
+    width: 100%;
+    color: #ffffff;
+    background-color: #585858;
+    text-align: center;
+    transition: all 0.1s ease-in-out;
+  }
+
+  .toggle input:checked~.labels::after {
+    transform: translateX(var(--width));
+  }
+
+  .toggle input:checked~.labels::before {
+    transform: translateX(var(--width));
+  }
+
+  /* END Toggle */
 
 </style>

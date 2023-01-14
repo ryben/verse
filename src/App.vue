@@ -21,14 +21,13 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  background-image: url('assets/background.jpg');
+  /* background-image: url('assets/blue.jpg'); */
 
   /* Full height */
   height: 100%;
 
   /* Center and scale the image nicely */
-  background-position: center;
-  background-size: cover;
+  background-size: 100% 100%;
 
   margin: 0px;
 } 
