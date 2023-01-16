@@ -2,7 +2,7 @@
   <div id="baseDiv" 
     @contextmenu="rightClickHandler($event)" >
 
-    <div id="verseContainer" 
+    <div id="verseContainer"
        tabindex="0"
         @keydown.left="showNextVerse(false)"
         @keydown.right="showNextVerse(true)"
@@ -53,10 +53,10 @@
       </select>
       <input
         id="bgImgCustomUrlInput"
-        style="visibility:hidden;"
+        style="display:none;"
         v-model="bgCustomImgUrl"
       />
-      <span id="errorDisplay" style="margin-left: 30px; color: darkred; font-weight: bold;">
+      <span id="errorDisplay" style="margin-left: 15px; color: darkred; font-weight: bold;">
         {{ errorDisplay }}
       </span>
     </div>
@@ -438,10 +438,10 @@ export default {
       const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
 
       if (selectedBg == BG_CUSTOM_URL) {
-        bgImgCustomUrlInput.style.visibility = 'visible'
+        bgImgCustomUrlInput.style.display = 'inline'
         this.applyBg(this.bgCustomImgUrl)
       } else {
-        bgImgCustomUrlInput.style.visibility = 'hidden'
+        bgImgCustomUrlInput.style.display = 'none'
         this.applyBg(require('@/assets/' + selectedBg))
       }
     },
@@ -452,6 +452,7 @@ export default {
         const body = document.querySelector('body')
         body.style.background = 'url(\'' + processedUrl + '\')'
         body.style.backgroundSize = '100% 100%'
+        body.style.overflow = 'hidden'
       }
     },
     onEnterCustomUrl: function(event) {
@@ -580,7 +581,7 @@ export default {
   }
 
   #translationInput {
-    width: 200px;
+    width: 150px;
   }
 
   .button:hover {
@@ -589,6 +590,10 @@ export default {
 
   .button:active {
     background-color: #919191;
+  }
+
+  #bgImgCustomUrlInput {
+    width: 100px;
   }
 
   /* START Toggle */
