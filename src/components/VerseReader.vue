@@ -11,14 +11,14 @@
         @keydown.esc="focusInput()"
         @keydown.down="increaseFontSize(false)"
         @keydown.up="increaseFontSize(true)">
-      <div id="verseTitle">
-        {{ verseInfo.title.toUpperCase() }}
+      <div id="verseTitleTranslationContainer">
+        <div id="verseTitle">
+          {{ verseInfo.title.toUpperCase() }}
+        </div>
+        <div id="verseTranslation">
+          {{ verseInfo.translation.toUpperCase() }}
+        </div>
       </div>
-      <div id="verseTranslation">
-        {{ verseInfo.translation.toUpperCase() }}
-      </div>
-      <br/>
-      <br/>
       <div id="verseContent" :style="verseFont">
         {{ verseInfo.content }}
       </div>
@@ -35,15 +35,19 @@
       <select name="translation" id="translationInput" class="selector" v-model="verseTranslation">
         <option v-for="(value, key) in translations" :value="key" v-bind:key="key">{{ value }}</option>
       </select>
-      <a class="button" @click="onClickGo">Go</a>
-      <span style="margin-left: 15px;">
+      <a class="button" style="margin-right: 15px; width: 40px;" @click="onClickGo">Go</a>
+      <span style="margin-right: 15px;">
         <a class="button" @click="showNextVerse(false)">&lt;  Prev</a>
         <a class="button" @click="showNextVerse(true)">Next  &gt;</a>
       </span>
-      <span style="margin-left: 15px;">
+      <span>
         <a class="button" @click="increaseFontSize(false)">−</a>
         <a class="button" @click="increaseFontSize(true)">+</a>
       </span>
+      <label class="toggle" style="margin-right: 15px;">
+        <input type="checkbox" v-model="isAutosizeText">
+        <span class="labels" data-on="Auto-size" data-off="Custom Size"></span>
+      </label>
       <label class="toggle">
         <input type="checkbox" v-model="isAddTextBg">
         <span class="labels" data-on="With Text BG" data-off="As Is BG"></span>
@@ -106,6 +110,7 @@ export default {
       selectedBg : '',
       bgCustomImgUrl : '',
       isAddTextBg : false,
+      isAutosizeText : false,
       verseAddressInput: 'Genesis 1:1',
       verseTranslation: 'adb',
       verseInfo: {
@@ -120,13 +125,15 @@ export default {
   },
   mounted: function() {
     // TODO: Make sure booknames are loaded first
-    this.fetchBookNames(this.loadParamQuery)
+    this.fetchBookNames(this.loadVerseParamQuery)
     // this.fetchTranslations()
     this.fetchTranslationsStub()
 
     window.addEventListener('storage', () => {this.loadFromLocalStorage()})
 
     this.loadBgSettingsFromLocalStorage()
+
+    this.loadUrlParams()
 
     // Check if has valid custom background
     if (this.selectedBg == BG_CUSTOM_URL && this.isEmpty(this.bgCustomImgUrl)) {
@@ -135,9 +142,15 @@ export default {
   },
   computed: {
     verseFont() {
-      return {
-          fontSize: this.verseFontSize + 'px',
-          fontFamily: 'Helvetica'
+      if (this.isAutosizeText) {
+        return {
+            fontFamily: 'Helvetica'
+        }
+      } else {
+        return {
+            fontSize: this.verseFontSize + 'px',
+            fontFamily: 'Helvetica'
+        }
       }
     }
   },
@@ -208,6 +221,14 @@ export default {
         this.selectDefaultBg()
       }
     },
+    loadUrlParams: function() {
+      let currentUrl = new URL(window.location.href)
+
+      var isAutosizeText = currentUrl.searchParams.get("autosize")
+      if (isAutosizeText != null && isAutosizeText.toLowerCase() != 'false') {
+        this.isAutosizeText = true
+      }
+    },
     selectDefaultBg() {
       this.selectedBg = this.backgrounds[Object.keys(this.backgrounds)[0]]
     },
@@ -232,7 +253,7 @@ export default {
         this.displayError('Caught exception: ' + error)
       }
     },
-    loadParamQuery: function() {
+    loadVerseParamQuery: function() {
       var url = new URL(window.location.href);
       let verseParam = url.searchParams.get('v')
       if (verseParam) {
@@ -276,7 +297,6 @@ export default {
       }
 
       let bookMatch = this.findBookMatch(bookInput)
-
 
       return {
         'translation': this.verseTranslation,
@@ -506,11 +526,6 @@ export default {
   }
 
   #verseContainer {
-    padding-top: 50px;
-    padding-bottom: 50px;
-    padding-left: 100px;
-    padding-right: 100px;
-    /* background: rgba(2, 2, 2, 0.7); */
     border-radius: 80px;
     font-family: Arial, Helvetica, sans-serif;
     height: 77%;
@@ -537,6 +552,107 @@ export default {
     color: white;
     text-align: center;
     font-size: 72px;
+    margin-top: 50px;
+  }
+
+  @media screen and (min-width: 1201px), screen and (min-height: 700px) {
+    #verseContainer {
+      padding-top: 50px;
+      padding-bottom: 50px;
+      padding-left: 100px;
+      padding-right: 100px;
+    }
+
+    #verseContent {
+      font-size: 80px;
+    }
+
+    #verseTitle {
+      font-size: 50px;
+    }
+
+    #verseTranslation {
+      font-size: 35px;
+      margin-top: 10px;
+    }
+  }
+
+  @media screen and (max-width: 1200px), screen and (max-height: 700px) {
+    #verseContainer {
+      padding-top: 40px;
+      padding-bottom: 30px;
+      padding-left: 50px;
+      padding-right: 50px;
+    }
+
+    #verseContent {
+      font-size: 45px;
+    }
+      
+    #verseTitle {
+      font-size: 25px;
+    }
+
+    #verseTranslation {
+      font-size: 25px;
+      margin-top: 10px;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    #verseContainer {
+      padding-top: 30px;
+      padding-bottom: 20px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    #verseContent {
+      font-size: 30px;
+    }
+
+    #verseTitle {
+      font-size: 25px;
+    }
+
+    #verseTranslation {
+      font-size: 13px;
+      margin-top: 5px;
+    }
+  }
+
+  @media screen and (max-height: 400px) {
+    #verseContainer {
+      padding-top: 0px;
+      padding-bottom: 20px;
+      padding-left: 5px;
+      padding-right: 5px;
+      display:flex;
+    }
+
+    #verseTitleTranslationContainer {
+      font-size: 25px;
+      text-align: center;
+      margin-left: 20px;
+      min-width: 120px;
+    }
+
+    #verseTitle {
+      font-size: 18px;
+    }
+
+    #verseTranslation {
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    #verseContent {
+      margin-top: 0px;
+      font-size: 30px;
+      margin-left: 40px;
+      margin-right: 20px;
+    }
+
   }
 
   .button {
@@ -610,7 +726,7 @@ export default {
     cursor: pointer;
     margin-bottom: -8px;
     font-weight: bold;
-    margin-left: 20px;
+    margin-left: 3px;
   }
 
   .toggle input {
