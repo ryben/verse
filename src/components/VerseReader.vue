@@ -599,7 +599,7 @@ export default {
     }
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (max-width: 800px) {
     #verseContainer {
       padding-top: 30px;
       padding-bottom: 20px;
@@ -608,6 +608,7 @@ export default {
     }
 
     #verseContent {
+      margin-top: 20px;
       font-size: 30px;
     }
 
@@ -627,12 +628,10 @@ export default {
       padding-bottom: 20px;
       padding-left: 5px;
       padding-right: 5px;
-      display:flex;
     }
 
     #verseTitleTranslationContainer {
       font-size: 25px;
-      text-align: center;
       margin-left: 20px;
       min-width: 120px;
     }
@@ -647,12 +646,67 @@ export default {
     }
 
     #verseContent {
-      margin-top: 0px;
-      font-size: 30px;
+      margin-top: 20px;
+      font-size: 20px;
       margin-left: 40px;
       margin-right: 20px;
     }
+  }
 
+  @media screen and (max-height: 200px) {
+    #verseContainer {
+      padding-top: 0px;
+      padding-bottom: 20px;
+      padding-left: 5px;
+      padding-right: 5px;
+      display:flex;
+    }
+
+    #verseTitleTranslationContainer {
+      font-size: 25px;
+      text-align: center;
+      margin-left: 10px;
+      min-width: 100px;
+    }
+
+    #verseTitle {
+      font-size: 13px;
+    }
+
+    #verseTranslation {
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    #verseContent {
+      margin-top: 0px;
+      font-size: 17px;
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+  }
+
+  @media screen and (max-width: 400px) {
+    #verseContainer {
+      padding-top: 30px;
+      padding-bottom: 20px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    #verseContent {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    #verseTitle {
+      font-size: 17px;
+    }
+
+    #verseTranslation {
+      font-size: 13px;
+      margin-top: 5px;
+    }
   }
 
   .button {
