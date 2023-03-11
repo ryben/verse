@@ -105,6 +105,7 @@ export default {
         'Blue BG' : 'blue.jpg',
         'Brown BG' : 'brown.jpg',
         'Orange' : 'orange.jpg',
+        'White' : 'white.jpg',
         'Image URL' : BG_CUSTOM_URL
       },
       selectedBg : '',
