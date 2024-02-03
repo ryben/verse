@@ -77,7 +77,7 @@ let KEY_BG_IMAGE = "KEY_BG_IMAGE"
 let KEY_BG_IMAGE_CUSTOM_URL = "KEY_BG_IMAGE_CUSTOM_URL"
 let BG_CUSTOM_URL = "BG_CUSTOM_URL"
 
-var baseUrl = 'https://ryben.github.io/verse/verses/' // TODO: Put constants in one place
+var baseUrl = '/verses/' // TODO: Put constants in one place
 var bookNamesFilename = 'books.json'
 var translationsFilename = 'translations.json'
 var sourceFileExt = '.json'
@@ -361,9 +361,11 @@ export default {
     fetchTranslationsStub: function() {
       let response = {
         "adb" : "Ang Dating Biblia",
-        "kjv" : "King James Version"
+        "kjv" : "King James Version",
+        "nkjv" : "New King James Version"
       }
       Object.keys(response).forEach(key => {
+        console.log(key)
         this.bible[key] = {}
       });
       this.translations = response
@@ -371,6 +373,10 @@ export default {
     fetchTranslations: function() {
       let fetchUrl = baseUrl + translationsFilename
       axios.get(fetchUrl).then(response => {
+        Object.keys(response.data).forEach(key => {
+          console.log(key)
+          this.bible[key] = {}
+        });
         this.translations = response.data
       })
     },
