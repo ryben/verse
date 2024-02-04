@@ -1,16 +1,24 @@
 <template>
   <div id="app">
-    <VerseReader/>
+    <!-- <div id="baseDiv" @contextmenu="rightClickHandler($event)">
+      <VerseDisplay />
+      <ControlBar />
+    </div> -->
+    <VerseReader />
   </div>
 </template>
 
 <script>
 import VerseReader from './components/VerseReader.vue'
+// import VerseDisplay from './components/VerseDisplay.vue'
+// import ControlBar from './components/ControlBar.vue'
 
 export default {
   name: 'App',
   components: {
     VerseReader
+    // VerseDisplay,
+    // ControlBar
   }
 }
 </script>
@@ -30,9 +38,15 @@ export default {
   background-size: 100% 100%;
 
   margin: 0px;
-} 
+}
 
-body, html {
+
+#baseDiv {
+  height: 100%;
+}
+
+body,
+html {
   height: 100%;
   margin: 0;
 }
