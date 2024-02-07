@@ -20,7 +20,7 @@
 <script>
 
 let MAX_VERSE_CHAPTER_INDICATOR = -1
-var maxBookCount = 66
+const maxBookCount = 66
 
 export default {
 
@@ -42,7 +42,7 @@ export default {
       }
     }
   },
-  mounted: function() {
+  mounted: function () {
     // TODO: Make sure booknames are loaded first
     this.fetchBookNames(this.loadVerseParamQuery)
     // this.fetchTranslations()
@@ -72,6 +72,14 @@ export default {
       this.verseAddress['translation'] = newVal
       this.fetchVerseContent(this.verseAddress)
       this.saveVerseToLocalStorage(this.verseAddress)
+    },
+    isAddTextBg: function (newVal) {
+      if (newVal == false) {
+        document.getElementById('verseContainer').style.background = ''
+      } else {
+        document.getElementById('verseContainer').style.background = '#00000099'
+      }
+      this.saveTextBgToLocalStorage(newVal)
     },
   },
   methods: {

@@ -1,33 +1,60 @@
+<template>
+    <div></div>
+</template>
+
 <script>
+const BG_CUSTOM_URL = "BG_CUSTOM_URL"
+
+import { storageManager } from '../utils/storageManager.js';
+import { utils } from '../utils/utils.js';
+
+
+
 
 export default {
 
+    data: function () {
+        return {
+            selectedBg: '',
+            bgCustomImgUrl: '',
+            isAddTextBg: '',
+            backgrounds: {
+                'Blue BG': 'blue.jpg',
+                'Brown BG': 'brown.jpg',
+                'Orange': 'orange.jpg',
+                'White': 'white.jpg',
+                'Image URL': BG_CUSTOM_URL
+            },
+        }
+    },
+
     mounted: function () {
-        this.loadBgSettingsFromLocalStorage()
+        let bgSettings = storageManager.loadBgSettingsFromLocalStorage()
+        Object.keys(bgSettings).forEach(key => {
+            console.log(key)
+            this[key] = bgSettings[key];
+        });
+
+        if (this.selectedBg == null) {
+            this.selectDefaultBg()
+        }
 
         // Check if has valid custom background
-        if (this.selectedBg == BG_CUSTOM_URL && this.isEmpty(this.bgCustomImgUrl)) {
+        if (this.selectedBg == BG_CUSTOM_URL && utils.isEmpty(this.bgCustomImgUrl)) {
             this.selectDefaultBg()
         }
     },
 
     watch: {
-        isAddTextBg: function (newVal) {
-            if (newVal == false) {
-                document.getElementById('verseContainer').style.background = ''
-            } else {
-                document.getElementById('verseContainer').style.background = '#00000099'
-            }
-            this.saveTextBgToLocalStorage(newVal)
-        },
         selectedBg: function (newVal) {
             this.onSelectBg(newVal)
-            this.saveBgImageToLocalStorage(newVal)
+            storageManager.saveBgImageToLocalStorage(newVal)
         },
-        bgCustomImgUrl: function (newVal) {
-            this.onSelectBg(this.selectedBg)
-            this.saveBgImageCustomUrlToLocalStorage(newVal)
-        }
+        // TODO
+        // bgCustomImgUrl: function (newVal) {
+        //     this.onSelectBg(this.selectedBg)
+        //     this.saveBgImageCustomUrlToLocalStorage(newVal)
+        // }
     },
 
     methods: {
@@ -42,18 +69,19 @@ export default {
         },
 
         onSelectBg: function (selectedBg) {
-            const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
+            // TODO: Send event up
+            // const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
 
             if (selectedBg == BG_CUSTOM_URL) {
-                bgImgCustomUrlInput.style.display = 'inline'
+                // bgImgCustomUrlInput.style.display = 'inline'
                 this.applyBg(this.bgCustomImgUrl)
             } else {
-                bgImgCustomUrlInput.style.display = 'none'
+                // bgImgCustomUrlInput.style.display = 'none'
                 this.applyBg(require('@/assets/' + selectedBg))
             }
         },
         applyBg: function (imgUrl) {
-            if (!this.isEmpty(imgUrl)) {
+            if (!utils.isEmpty(imgUrl)) {
                 let processedUrl = this.processUrl(imgUrl)
 
                 const body = document.querySelector('body')

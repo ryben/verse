@@ -1,22 +1,25 @@
 <template>
   <div id="app">
-    <!-- <div id="baseDiv" @contextmenu="rightClickHandler($event)">
-      <VerseDisplay />
-      <ControlBar />
-    </div> -->
-    <VerseReader />
+    <div id="baseDiv" @contextmenu="rightClickHandler($event)">
+      <CustomBackground />
+      <!-- <VerseDisplay /> -->
+      <!-- <ControlBar /> -->
+    </div>
+    <!-- <VerseReader /> -->
   </div>
 </template>
 
 <script>
-import VerseReader from './components/VerseReader.vue'
+// import VerseReader from './components/VerseReader.vue'
+import CustomBackground from './components/CustomBackground.vue'
 // import VerseDisplay from './components/VerseDisplay.vue'
 // import ControlBar from './components/ControlBar.vue'
 
 export default {
   name: 'App',
   components: {
-    VerseReader
+    // VerseReader
+    CustomBackground,
     // VerseDisplay,
     // ControlBar
   }

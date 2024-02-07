@@ -35,8 +35,8 @@
 
 <script>
 
-let BG_CUSTOM_URL = "BG_CUSTOM_URL"
-let verseAddressRegex =
+const BG_CUSTOM_URL = "BG_CUSTOM_URL"
+const verseAddressRegex =
     ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
         + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
         + "\\s+"      // space after book
@@ -45,7 +45,7 @@ let verseAddressRegex =
         + "(\\d+)") // verse
 
 export default {
-    name: 'HelloWorld',
+    name: 'ControlBar',
     props: {
         msg: String
     },
@@ -56,14 +56,7 @@ export default {
             translations: { 'adb': 'Ang Dating Biblia' },
             isAutosizeText: false,
             isAddTextBg: false,
-            selectedBg: '',
-            backgrounds: {
-                'Blue BG': 'blue.jpg',
-                'Brown BG': 'brown.jpg',
-                'Orange': 'orange.jpg',
-                'White': 'white.jpg',
-                'Image URL': BG_CUSTOM_URL
-            },
+
             bgCustomImgUrl: '',
             errorDisplay: null,
         }

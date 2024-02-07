@@ -1,13 +1,11 @@
-var baseUrl = '/verses/' // TODO: Put constants in one place
-var bookNamesFilename = 'books.json'
-var translationsFilename = 'translations.json'
-var sourceFileExt = '.json'
+const baseUrl = '/verses/' // TODO: Put constants in one place
+const bookNamesFilename = 'books.json'
+const translationsFilename = 'translations.json'
+const sourceFileExt = '.json'
 
 import axios from 'axios'
 
-
 export const verseManager = {
-    
 
     loadVerseParamQuery: function () {
         var url = new URL(window.location.href);
