@@ -23,7 +23,9 @@
             <input type="checkbox" v-model="isAddTextBg">
             <span class="labels" data-on="With Text BG" data-off="As Is BG"></span>
         </label>
-        <select id="bgSelector" class="selector" v-model="selectedBg">
+        <select id="bgSelector" class="selector">
+            <!-- TODO: selectedBg - send event up -->
+            <!-- <select id="bgSelector" class="selector" v-model="selectedBg"> -->
             <option v-for="(value, key) in backgrounds" :value="value" v-bind:key="key">{{ key }}</option>
         </select>
         <input id="bgImgCustomUrlInput" style="display:none;" v-model="bgCustomImgUrl" />
@@ -35,7 +37,8 @@
 
 <script>
 
-const BG_CUSTOM_URL = "BG_CUSTOM_URL"
+import BG_CUSTOM_URL from './CustomBackground.vue'
+
 const verseAddressRegex =
     ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
         + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
@@ -56,7 +59,13 @@ export default {
             translations: { 'adb': 'Ang Dating Biblia' },
             isAutosizeText: false,
             isAddTextBg: false,
-
+            backgrounds: {
+                'Blue BG': 'blue.jpg',
+                'Brown BG': 'brown.jpg',
+                'Orange': 'orange.jpg',
+                'White': 'white.jpg',
+                'Image URL': BG_CUSTOM_URL
+            },
             bgCustomImgUrl: '',
             errorDisplay: null,
         }
@@ -78,7 +87,7 @@ export default {
         },
         increaseFontSize: function (isIncrease) {
             console.log(isIncrease)
-            // ,TODO: Emit event up
+            // TODO: Emit event up
         },
         focusInput: function () {
             let verseInput = this.$refs.verseInput

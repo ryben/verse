@@ -3,12 +3,12 @@
 </template>
 
 <script>
-const BG_CUSTOM_URL = "BG_CUSTOM_URL"
+
 
 import { storageManager } from '../utils/storageManager.js';
 import { utils } from '../utils/utils.js';
 
-
+export const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 
 
 export default {
@@ -18,22 +18,16 @@ export default {
             selectedBg: '',
             bgCustomImgUrl: '',
             isAddTextBg: '',
-            backgrounds: {
-                'Blue BG': 'blue.jpg',
-                'Brown BG': 'brown.jpg',
-                'Orange': 'orange.jpg',
-                'White': 'white.jpg',
-                'Image URL': BG_CUSTOM_URL
-            },
+            defaultBg: 'blue.jpg',
         }
     },
 
     mounted: function () {
         let bgSettings = storageManager.loadBgSettingsFromLocalStorage()
-        Object.keys(bgSettings).forEach(key => {
-            console.log(key)
-            this[key] = bgSettings[key];
-        });
+
+        this.isAddTextBg = bgSettings.isAddTextBg
+        this.bgCustomImgUrl = bgSettings.bgCustomImgUrl
+        this.selectedBg = bgSettings.selectedBg
 
         if (this.selectedBg == null) {
             this.selectDefaultBg()
@@ -50,11 +44,10 @@ export default {
             this.onSelectBg(newVal)
             storageManager.saveBgImageToLocalStorage(newVal)
         },
-        // TODO
-        // bgCustomImgUrl: function (newVal) {
-        //     this.onSelectBg(this.selectedBg)
-        //     this.saveBgImageCustomUrlToLocalStorage(newVal)
-        // }
+        bgCustomImgUrl: function (newVal) {
+            this.onSelectBg(this.selectedBg)
+            this.saveBgImageCustomUrlToLocalStorage(newVal)
+        }
     },
 
     methods: {
@@ -65,7 +58,7 @@ export default {
         },
 
         selectDefaultBg() {
-            this.selectedBg = this.backgrounds[Object.keys(this.backgrounds)[0]]
+            this.selectedBg = this.defaultBg
         },
 
         onSelectBg: function (selectedBg) {
@@ -73,9 +66,11 @@ export default {
             // const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
 
             if (selectedBg == BG_CUSTOM_URL) {
+                // TODO: Send event up
                 // bgImgCustomUrlInput.style.display = 'inline'
                 this.applyBg(this.bgCustomImgUrl)
             } else {
+                // TODO: Send event up
                 // bgImgCustomUrlInput.style.display = 'none'
                 this.applyBg(require('@/assets/' + selectedBg))
             }

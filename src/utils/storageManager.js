@@ -37,15 +37,10 @@ export const storageManager = {
 
         bgSettings['isAddTextBg'] = localStorage.getItem(KEY_IS_ADD_TEXT_BG) == 'true'
 
-        // this.isAddTextBg = isAddTextBg
-
         let bgCustomImgUrl = localStorage.getItem(KEY_BG_IMAGE_CUSTOM_URL)
         bgSettings['bgCustomImgUrl'] = bgCustomImgUrl == null ? "" : bgCustomImgUrl
-        // this.bgCustomImgUrl = bgCustomImgUrl == null ? "" : bgCustomImgUrl
 
         bgSettings['selectedBg'] = localStorage.getItem(KEY_BG_IMAGE)
-
-        // this.selectedBg = localStorage.getItem(KEY_BG_IMAGE)
 
         return bgSettings
     },
