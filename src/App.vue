@@ -2,7 +2,7 @@
   <div id="app">
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
-      <!-- <VerseDisplay /> -->
+      <VerseDisplay />
       <ControlBar />
     </div>
     <!-- <VerseReader /> -->
@@ -12,7 +12,7 @@
 <script>
 // import VerseReader from './components/VerseReader.vue'
 import CustomBackground from './components/CustomBackground.vue'
-// import VerseDisplay from './components/VerseDisplay.vue'
+import VerseDisplay from './components/VerseDisplay.vue'
 import ControlBar from './components/ControlBar.vue'
 
 export default {
@@ -20,7 +20,7 @@ export default {
   components: {
     // VerseReader
     CustomBackground,
-    // VerseDisplay,
+    VerseDisplay,
     ControlBar
   }
 }

@@ -37,7 +37,7 @@
 
 <script>
 
-import BG_CUSTOM_URL from './CustomBackground.vue'
+export const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 
 const verseAddressRegex =
     ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book

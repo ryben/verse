@@ -19,28 +19,33 @@
 
 <script>
 
-// import { BibleService } from '../services/BibleService'
+let MAX_VERSE_CHAPTER_INDICATOR = -1
+const maxBookCount = 66
 
 export default {
+
   name: 'VerseDisplay',
   props: {
     msg: String
   },
   data: function () {
     return {
-      verseAddress: {
-        translation: 'adb',
-        book: '1',
-        chapter: '1',
-        verse: '1'
-      },
+      bible: {},
+      bookNames: ['Genesis'],
+      verseAddress: {},
       verseFontSize: 72,
       verseInfo: {
         title: 'Genesis 1:1',
         translation: 'Ang Dating Biblia',
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
+        content: ''
       }
     }
+  },
+  mounted: function () {
+    // TODO: Make sure booknames are loaded first
+    this.fetchBookNames(this.loadVerseParamQuery)
+    // this.fetchTranslations()
+    this.fetchTranslationsStub()
   },
   computed: {
     verseFont() {
@@ -56,10 +61,84 @@ export default {
       }
     }
   },
+  watch: {
+    verseAddress: function (newVal) {
+      this.errorDisplay = null
+      this.fetchVerseContent(newVal)
+    },
+    verseTranslation: function (newVal) {
+      this.errorDisplay = null
+      this.verseAddress['translation'] = newVal
+      this.fetchVerseContent(this.verseAddress)
+      this.saveVerseToLocalStorage(this.verseAddress)
+    },
+    isAddTextBg: function (newVal) {
+      if (newVal == false) {
+        document.getElementById('verseContainer').style.background = ''
+      } else {
+        document.getElementById('verseContainer').style.background = '#00000099'
+      }
+      this.saveTextBgToLocalStorage(newVal)
+    },
+  },
   methods: {
     showNextVerse: function (isNextVerse) {
-      console.log(isNextVerse)
-    }
+      let book = this.verseAddress.book
+      let chapter = this.verseAddress.chapter
+      let verse = this.verseAddress.verse
+
+      if (isNextVerse) {
+        verse++
+      } else {
+        verse--
+      }
+
+      // if reached the end of the chapter
+      if (verse > Object.keys(this.bible[this.verseTranslation][book][chapter]).length) {
+        chapter++
+        verse = 1
+      } else if (verse < 1) { // if at start of chapter
+        chapter--
+        verse = MAX_VERSE_CHAPTER_INDICATOR
+      }
+
+      // if reached the end of the book
+      if (chapter > Object.keys(this.bible[this.verseTranslation][book]).length) {
+        book++
+        chapter = 1
+      } else if (chapter < 1) {
+        book--
+        chapter = MAX_VERSE_CHAPTER_INDICATOR
+      }
+
+      // if reached end of the bible
+      if (book > maxBookCount) {
+        book = 1
+      } else if (book < 1) {
+        book = maxBookCount
+      }
+
+      this.verseAddress = {
+        'translation': this.verseTranslation,
+        'book': book,
+        'chapter': chapter,
+        'verse': verse
+      }
+
+      this.saveVerseToLocalStorage(this.verseAddress)
+    },
+
+
+    increaseFontSize: function (isIncrease) {
+      this.verseFontSize += (3 * (isIncrease ? 1 : -1))
+      this.saveFontSizeToLocalStorage(this.verseFontSize)
+    },
+
+
+    rightClickHandler: function (event) {
+      event.preventDefault();
+      this.focusInput()
+    },
   }
 }
 

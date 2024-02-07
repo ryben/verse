@@ -5,7 +5,53 @@ const sourceFileExt = '.json'
 
 import axios from 'axios'
 
-export const verseManager = {
+export const BibleService = {
+
+    showNextVerse: function (isNextVerse) {
+        let book = this.verseAddress.book
+        let chapter = this.verseAddress.chapter
+        let verse = this.verseAddress.verse
+
+        if (isNextVerse) {
+            verse++
+        } else {
+            verse--
+        }
+
+        // if reached the end of the chapter
+        if (verse > Object.keys(this.bible[this.verseTranslation][book][chapter]).length) {
+            chapter++
+            verse = 1
+        } else if (verse < 1) { // if at start of chapter
+            chapter--
+            verse = MAX_VERSE_CHAPTER_INDICATOR
+        }
+
+        // if reached the end of the book
+        if (chapter > Object.keys(this.bible[this.verseTranslation][book]).length) {
+            book++
+            chapter = 1
+        } else if (chapter < 1) {
+            book--
+            chapter = MAX_VERSE_CHAPTER_INDICATOR
+        }
+
+        // if reached end of the bible
+        if (book > maxBookCount) {
+            book = 1
+        } else if (book < 1) {
+            book = maxBookCount
+        }
+
+        this.verseAddress = createVerseAddress(
+            this.verseTranslation,
+            book,
+            chapter,
+            verse
+        )
+
+        this.saveVerseToLocalStorage(this.verseAddress)
+    },
 
     loadVerseParamQuery: function () {
         var url = new URL(window.location.href);
@@ -47,11 +93,19 @@ export const verseManager = {
 
         let bookMatch = this.findBookMatch(bookInput)
 
+        return createVerseAddress(
+            this.verseTranslation,
+            bookMatch,
+            matchGroups[3] + '',
+            matchGroups[4] + ''
+        )
+    },
+    createVerseAddress(translation, book, chapter, verse) {
         return {
-            'translation': this.verseTranslation,
-            'book': bookMatch,
-            'chapter': matchGroups[3] + '',
-            'verse': matchGroups[4] + ''
+            'translation': translation,
+            'book': book,
+            'chapter': chapter,
+            'verse': verse
         }
     },
     findBookMatch(bookName) {
