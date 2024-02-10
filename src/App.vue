@@ -3,17 +3,20 @@
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
       <VerseDisplay />
-      <ControlBar />
+      <ControlBar @verse-entered="verseEntered" />
     </div>
     <!-- <VerseReader /> -->
   </div>
 </template>
 
 <script>
+
 // import VerseReader from './components/VerseReader.vue'
-import CustomBackground from './components/CustomBackground.vue'
-import VerseDisplay from './components/VerseDisplay.vue'
-import ControlBar from './components/ControlBar.vue'
+import CustomBackground from '@/components/CustomBackground.vue'
+import VerseDisplay from '@/components/VerseDisplay.vue'
+import ControlBar from '@/components/ControlBar.vue'
+
+import BibleService from '@/services/BibleService.js'
 
 export default {
   name: 'App',
@@ -22,6 +25,16 @@ export default {
     CustomBackground,
     VerseDisplay,
     ControlBar
+  },
+  methods: {
+    async verseEntered(input) {
+      let verseInput = input[0]
+      let bibleVersionKey = input[1]
+
+      let verseAddress = await BibleService.parseVerseInput(verseInput, bibleVersionKey)
+      
+      console.log(verseAddress)
+    }
   }
 }
 </script>

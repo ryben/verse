@@ -6,7 +6,7 @@
 
 
 import { storageManager } from '../utils/storageManager.js';
-import { utils } from '../utils/utils.js';
+import { utils } from '@/utils/utils.js';
 
 export const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 

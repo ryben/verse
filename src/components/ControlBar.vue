@@ -3,8 +3,8 @@
         <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" v-on:keyup.up="showNextVerse(false)"
             v-on:keyup.down="showNextVerse(true)" v-on:keyup.page-up="showNextVerse(false)"
             v-on:keyup.page-down="showNextVerse(true)" id="verseInput" ref="verseInput" @paste="onPasteVerseAddress" />
-        <select name="translation" id="translationInput" class="selector" v-model="verseTranslation">
-            <option v-for="(value, key) in translations" :value="key" v-bind:key="key">{{ value }}</option>
+        <select name="translation" id="translationInput" class="selector" v-model="currentVersion">
+            <option v-for="version in versions" :value="version.key" :key="version.key">{{ version.name }}</option>
         </select>
         <a class="button" style="margin-right: 15px; width: 40px;" @click="onClickGo">Go</a>
         <span style="margin-right: 15px;">
@@ -36,26 +36,19 @@
 </template>
 
 <script>
+import BibleService from '@/services/BibleService.js'
 
-export const BG_CUSTOM_URL = "BG_CUSTOM_URL"
-
-const verseAddressRegex =
-    ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
-        + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
-        + "\\s+"      // space after book
-        + "(\\d+)"  // chapter
-        + "(?:\\.|:|\\s+)" // chapter-verse separator
-        + "(\\d+)") // verse
+const BG_CUSTOM_URL = "BG_CUSTOM_URL"
+const defaultVersionIndex = 0
 
 export default {
     name: 'ControlBar',
-    props: {
-        msg: String
-    },
     data: function () {
         return {
-            verseAddressInput: 'Genesis 1:1',
-            verseTranslation: 'adb',
+            defaultVerse: 'Apoc 1 1',
+            verseAddressInput: '',
+            versions: [],
+            currentVersion: '',
             translations: { 'adb': 'Ang Dating Biblia' },
             isAutosizeText: false,
             isAddTextBg: false,
@@ -70,37 +63,63 @@ export default {
             errorDisplay: null,
         }
     },
+    mounted: function () {
+        // Immediately invoked async function expression
+        (async () => {
+            await this.initBibleService()
+        })();
+
+    },
     methods: {
-        showNextVerse: function (isNextVerse) {
-            console.log(isNextVerse)
-            // TODO: Emit event up
+        async initBibleService() {
+            console.log("----")
+            await BibleService.init()
+
+            // Retrieve bible versions list
+            BibleService.bible.versions.forEach(version => {
+                this.versions.push({
+                    'key': version.key,
+                    'name': version.name
+                })
+            })
+
+            // Select default version (first one)
+            this.currentVersion = this.versions[defaultVersionIndex].key
+            this.verseAddressInput = this.defaultVerse
+
+            this.$emit('verse-entered', [this.defaultVerse, this.currentVersion])
         },
-        onClickGo: function () {
-            let verseAddress = this.processVerseInput(this.verseAddressInput)
-            this.saveVerseToLocalStorage(verseAddress)
+        onClickGo() {
+            // TODO
+            // let verseAddress = bibleService.processVerseInput(verseAddressInput)
+            this.$emit('verse-entered', this.verseAddressInput)
+            // TODO
+            // this.saveVerseToLocalStorage(verseAddress)
         },
-        onPasteVerseAddress: function (event) {
+        onPasteVerseAddress(event) {
             let pasted = event.clipboardData.getData('text')
-            if (pasted.match(verseAddressRegex)) {
+            if (pasted.match(BibleService.verseAddressRegex)) {
                 this.processVerseInput(pasted)
             }
         },
-        increaseFontSize: function (isIncrease) {
+        increaseFontSize(isIncrease) {
             console.log(isIncrease)
             // TODO: Emit event up
         },
-        focusInput: function () {
+        focusInput() {
             let verseInput = this.$refs.verseInput
             verseInput.focus()
             verseInput.select()
         },
-        displayError: function (errorMsg) {
+        displayError(errorMsg) {
             this.errorDisplay = errorMsg
         },
+        showNextVerse(isNextVerse) {
+            console.log(isNextVerse)
+            // TODO: Emit event up
+        }
     }
 }
-
-
 </script>
 
 
