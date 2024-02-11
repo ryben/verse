@@ -32,8 +32,14 @@ export default {
       let bibleVersionKey = input[1]
 
       let verseAddress = await BibleService.parseVerseInput(verseInput, bibleVersionKey)
+
+      // TODO: Get verse details 
+      let verseDetails = await BibleService.fetchVerse(verseAddress)
       
-      console.log(verseAddress)
+      // TODO: Display verse 
+      // TODO: Cache validated verse address
+      
+      console.log(verseDetails)
     }
   }
 }

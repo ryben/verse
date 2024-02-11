@@ -45,7 +45,7 @@ export default {
     name: 'ControlBar',
     data: function () {
         return {
-            defaultVerse: 'Apoc 1 1',
+            defaultVerse: 'Apoc 1:1',
             verseAddressInput: '',
             versions: [],
             currentVersion: '',
@@ -92,7 +92,7 @@ export default {
         onClickGo() {
             // TODO
             // let verseAddress = bibleService.processVerseInput(verseAddressInput)
-            this.$emit('verse-entered', this.verseAddressInput)
+            this.$emit('verse-entered', [this.verseAddressInput, this.currentVersion])
             // TODO
             // this.saveVerseToLocalStorage(verseAddress)
         },

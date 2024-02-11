@@ -1,3 +1,8 @@
+import axios from 'axios'
+import { utils } from '@/utils/utils.js'
+import { apiService } from '@/services/ApiService.js'
+
+
 const baseUrl = '/verses/' // TODO: Put constants in one place
 const bookNamesFilename = 'books.json'
 const versionsFilename = 'versions.json'
@@ -5,8 +10,7 @@ const sourceFileExt = '.json'
 
 const versions = 'versions'
 
-import axios from 'axios'
-import { utils } from '@/utils/utils.js';
+const MAX_VERSE_CHAPTER_INDICATOR = -1
 
 
 class BibleService {
@@ -31,7 +35,6 @@ class BibleService {
 
     bookNames = ['Genesis']
 
-    static MAX_VERSE_CHAPTER_INDICATOR = -1
     static maxBookCount = 66
     static verseAddressRegex =
         ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
@@ -69,7 +72,7 @@ class BibleService {
             verse = 1
         } else if (verse < 1) { // if at start of chapter
             chapter--
-            verse = this.MAX_VERSE_CHAPTER_INDICATOR
+            verse = MAX_VERSE_CHAPTER_INDICATOR
         }
 
         // if reached the end of the book
@@ -78,7 +81,7 @@ class BibleService {
             chapter = 1
         } else if (chapter < 1) {
             book--
-            chapter = this.MAX_VERSE_CHAPTER_INDICATOR
+            chapter = MAX_VERSE_CHAPTER_INDICATOR
         }
 
         // if reached end of the bible
@@ -167,7 +170,7 @@ class BibleService {
     async findBookMatch(bookName, bibleVersionKey) {
         let bookMatches = []
         let bibleVersion = this.getBibleVersion(bibleVersionKey)
-        
+
         if (utils.isEmpty(bibleVersion.bookNames)) {
             // TODO: Fetch book names for requested bible version
             await this.loadbookNames(bibleVersion)
@@ -191,6 +194,57 @@ class BibleService {
             }
         } else {
             throw 'Invalid book name entered' // TODO: Add hint for possible matches
+        }
+    }
+    async loadBook() {
+
+    }
+    async fetchVerse(verseAddress) {
+        let bibleVersion = this.getBibleVersion(verseAddress.version)
+
+        // If bible version is not initialized yet
+        if (utils.isEmpty(bibleVersion.content)) {
+            bibleVersion.content = {}
+        }
+
+        // If book is not loaded yet
+        if (utils.isEmpty(bibleVersion.content[verseAddress.book])) {
+            // load and cache the fetched book content
+            bibleVersion.content[verseAddress.book] = await apiService.fetchBook(bibleVersion.key, verseAddress.book)
+        }
+
+        // Return verse info
+        return this.getVerseInfo(verseAddress)
+    }
+    getVerseInfo(verseAddress) {
+        try {
+            let bibleVersion = this.getBibleVersion(verseAddress.version)
+            let bookContent = bibleVersion.content[verseAddress.book]
+
+            // MAX_VERSE_CHAPTER_INDICATOR is set as value of chapter/verse when next/previous button is tapped and bounds are reached
+            if (verseAddress.chapter == MAX_VERSE_CHAPTER_INDICATOR) {
+                verseAddress.chapter = Object.keys(bookContent).length
+            }
+
+            let chapterContent = bookContent[verseAddress.chapter]
+            if (verseAddress.verse == MAX_VERSE_CHAPTER_INDICATOR) {
+                verseAddress.verse = Object.keys(chapterContent).length
+            }
+
+            let verseContent = chapterContent[verseAddress.verse]
+
+            if (verseContent) {
+                return {
+                    'title': bibleVersion.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse,
+                    'content': verseContent,
+                    'version': bibleVersion.name
+                }
+            } else {
+                throw 'Verse not found'
+            }
+        } catch (error) {
+            // TODO
+            // this.displayError('Verse not found')
         }
     }
     fetchVerseContent(verseAddress) {
@@ -233,36 +287,7 @@ class BibleService {
             this.bible[versions] = response.data
         })
     }
-    displayVerseContent(verseAddress) {
-        try {
-            let bookContent = this.bible[this.verseTranslation][verseAddress.book]
 
-            // MAX_VERSE_CHAPTER_INDICATOR is set as value of chapter/verse when next/previous button is tapped and bounds are reached
-            if (verseAddress.chapter == this.MAX_VERSE_CHAPTER_INDICATOR) {
-                verseAddress.chapter = Object.keys(bookContent).length
-            }
-
-            let chapterContent = bookContent[verseAddress.chapter]
-            if (verseAddress.verse == this.MAX_VERSE_CHAPTER_INDICATOR) {
-                verseAddress.verse = Object.keys(chapterContent).length
-            }
-
-            let verseContent = chapterContent[verseAddress.verse]
-
-            if (verseContent) {
-                this.verseInfo.content = verseContent
-                this.verseInfo.title = this.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse
-                this.verseInfo.translation = this.translations[this.verseTranslation]
-            } else {
-                throw 'Verse not found'
-            }
-
-            this.verseAddress = verseAddress // at this point, the verse address is validated, save the current verse address
-        } catch (error) {
-            // TODO
-            // this.displayError('Verse not found')
-        }
-    }
 }
 
 export default new BibleService()
