@@ -4,14 +4,14 @@
     @keydown.down="increaseFontSize(false)" @keydown.up="increaseFontSize(true)">
     <div id="verseTitleTranslationContainer">
       <div id="verseTitle">
-        {{ verseInfo.title.toUpperCase() }}
+        {{ verseDetails.title.toUpperCase() }}
       </div>
-      <div id="verseTranslation">
-        {{ verseInfo.translation.toUpperCase() }}
+      <div id="verseVersion">
+        {{ verseDetails.version.toUpperCase() }}
       </div>
     </div>
     <div id="verseContent" :style="verseFont">
-      {{ verseInfo.content }}
+      {{ verseDetails.content }}
     </div>
   </div>
 </template>
@@ -23,9 +23,7 @@
 
 export default {
   name: 'VerseDisplay',
-  props: {
-    msg: String
-  },
+  props: ['verseDetails'],
   data: function () {
     return {
       verseAddress: {
@@ -83,7 +81,7 @@ export default {
   font-size: 50px;
 }
 
-#verseTranslation {
+#verseVersion {
   color: yellow;
   font-style: oblique;
   font-size: 35px;
@@ -116,7 +114,7 @@ screen and (min-height: 700px) {
     font-size: 50px;
   }
 
-  #verseTranslation {
+  #verseVersion {
     font-size: 35px;
     margin-top: 10px;
   }
@@ -139,7 +137,7 @@ screen and (max-height: 700px) {
     font-size: 25px;
   }
 
-  #verseTranslation {
+  #verseVersion {
     font-size: 25px;
     margin-top: 10px;
   }
@@ -162,7 +160,7 @@ screen and (max-height: 700px) {
     font-size: 25px;
   }
 
-  #verseTranslation {
+  #verseVersion {
     font-size: 13px;
     margin-top: 5px;
   }
@@ -186,7 +184,7 @@ screen and (max-height: 700px) {
     font-size: 18px;
   }
 
-  #verseTranslation {
+  #verseVersion {
     font-size: 13px;
     margin-top: 5px;
   }
@@ -219,7 +217,7 @@ screen and (max-height: 700px) {
     font-size: 13px;
   }
 
-  #verseTranslation {
+  #verseVersion {
     font-size: 10px;
     margin-top: 5px;
   }
@@ -249,7 +247,7 @@ screen and (max-height: 700px) {
     font-size: 17px;
   }
 
-  #verseTranslation {
+  #verseVersion {
     font-size: 13px;
     margin-top: 5px;
   }

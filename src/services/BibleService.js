@@ -1,16 +1,23 @@
 import axios from 'axios'
 import { utils } from '@/utils/utils.js'
-import { apiService } from '@/services/ApiService.js'
 
-
-const baseUrl = '/verses/' // TODO: Put constants in one place
-const bookNamesFilename = 'books.json'
+const baseUrl = '/verses' // TODO: Group constants
 const versionsFilename = 'versions.json'
 const sourceFileExt = '.json'
-
+const bookNamesFilename = 'books.json'
 const versions = 'versions'
 
+const maxBookCount = 66
 const MAX_VERSE_CHAPTER_INDICATOR = -1
+
+const verseAddressRegex =
+    ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
+        + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
+        + "\\s+"      // space after book
+        + "(\\d+)"  // chapter
+        + "(?:\\.|:|\\s+)" // chapter-verse separator
+        + "(\\d+)") // verse
+
 
 
 class BibleService {
@@ -33,17 +40,6 @@ class BibleService {
         ],
     }
 
-    bookNames = ['Genesis']
-
-    static maxBookCount = 66
-    static verseAddressRegex =
-        ("(?:([iI]{1,3}|\\d+)\\s+)?" // number before book
-            + "([a-zA-Z]+(?: [a-zA-Z]+)*)" // book
-            + "\\s+"      // space after book
-            + "(\\d+)"  // chapter
-            + "(?:\\.|:|\\s+)" // chapter-verse separator
-            + "(\\d+)") // verse
-
     constructor() {
         if (!BibleService.instance) {
             BibleService.instance = this
@@ -52,7 +48,7 @@ class BibleService {
     }
 
     async init() {
-        await this.loadBibleVersions()
+        this.bible[versions] = await this.loadBibleVersions()
     }
 
     showNextVerse(isNextVerse) {
@@ -85,10 +81,10 @@ class BibleService {
         }
 
         // if reached end of the bible
-        if (book > this.maxBookCount) {
+        if (book > maxBookCount) {
             book = 1
         } else if (book < 1) {
-            book = this.maxBookCount
+            book = maxBookCount
         }
 
         this.verseAddress = this.createVerseAddress(
@@ -111,19 +107,8 @@ class BibleService {
         this.processVerseInput(this.verseAddressInput)
         this.focusInput()
     }
-    processVerseInput(verseInput) {
-        this.errorDisplay = null
-        try {
-            let verseAddress = this.parseVerseInput(verseInput)
-            this.fetchVerseContent(verseAddress)
-            return verseAddress
-        } catch (error) {
-            // TODO
-            // this.displayError('Caught exception: ' + error)
-        }
-    }
     async parseVerseInput(verseInput, bibleVersionKey) {
-        let matchGroups = verseInput.match(BibleService.verseAddressRegex)
+        let matchGroups = verseInput.match(verseAddressRegex)
 
         if (!matchGroups) {
             throw 'Invalid input'
@@ -172,8 +157,9 @@ class BibleService {
         let bibleVersion = this.getBibleVersion(bibleVersionKey)
 
         if (utils.isEmpty(bibleVersion.bookNames)) {
-            // TODO: Fetch book names for requested bible version
-            await this.loadbookNames(bibleVersion)
+            // Fetch book names for requested bible version
+            let fetchUrl = `${baseUrl}/${bibleVersion.key}/${bookNamesFilename}`
+            bibleVersion.bookNames = await this.fetch(fetchUrl)
         }
 
         for (let i = 0; i < bibleVersion.bookNames.length; i++) {
@@ -210,7 +196,8 @@ class BibleService {
         // If book is not loaded yet
         if (utils.isEmpty(bibleVersion.content[verseAddress.book])) {
             // load and cache the fetched book content
-            bibleVersion.content[verseAddress.book] = await apiService.fetchBook(bibleVersion.key, verseAddress.book)
+            let fetchUrl = `${baseUrl}/${bibleVersion.key}/${verseAddress.book}${sourceFileExt}`
+            bibleVersion.content[verseAddress.book] = await this.fetch(fetchUrl)
         }
 
         // Return verse info
@@ -247,45 +234,20 @@ class BibleService {
             // this.displayError('Verse not found')
         }
     }
-    fetchVerseContent(verseAddress) {
-        if (this.verseTranslation != verseAddress['translation']) {
-            this.verseTranslation = verseAddress['translation']
-        }
 
-        if (!this.bible[this.verseTranslation][verseAddress.book]) {
-            let fetchUrl = baseUrl + this.verseTranslation + '/' + verseAddress.book + '' + sourceFileExt
-
-            axios.get(fetchUrl).then(response => {
-                this.bible[this.verseTranslation][verseAddress.book] = response.data // cache the fetched book content
-                this.displayVerseContent(verseAddress)
-            })
-        } else {
-            this.displayVerseContent(verseAddress)
-        }
-    }
-    async loadbookNames(bibleVersion) {
-        let fetchUrl = baseUrl + bibleVersion.key + "/" + bookNamesFilename
-        await axios.get(fetchUrl).then(response => {
-            bibleVersion.bookNames = response.data
-        })
-    }
-    fetchTranslationsStub() {
-        let response = {
-            "adb": "Ang Dating Biblia",
-            "kjv": "King James Version",
-            "nkjv": "New King James Version"
-        }
-        Object.keys(response).forEach(key => {
-            console.log(key)
-            this.bible[key] = {}
-        });
-        this.translations = response
-    }
     async loadBibleVersions() {
-        let fetchUrl = baseUrl + versionsFilename
-        await axios.get(fetchUrl).then(response => {
-            this.bible[versions] = response.data
-        })
+        let fetchUrl = `${baseUrl}/${versionsFilename}`
+        return await this.fetch(fetchUrl)
+    }
+
+    async fetch(resourceUrl) {
+        try {
+            const response = await axios.get(resourceUrl);
+            return response.data;
+        } catch (error) {
+            console.error('There was an error fetching a resource:', error);
+            // TODO: Error handling
+        }
     }
 
 }

@@ -2,7 +2,7 @@
   <div id="app">
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
-      <VerseDisplay />
+      <VerseDisplay :verse-details="verseDetails"/>
       <ControlBar @verse-entered="verseEntered" />
     </div>
     <!-- <VerseReader /> -->
@@ -26,6 +26,15 @@ export default {
     VerseDisplay,
     ControlBar
   },
+  data: function () {
+    return {
+      verseDetails: {
+        'title' : '',
+        'version' : '',
+        'content' : ''
+      }
+    }
+  },
   methods: {
     async verseEntered(input) {
       let verseInput = input[0]
@@ -33,13 +42,10 @@ export default {
 
       let verseAddress = await BibleService.parseVerseInput(verseInput, bibleVersionKey)
 
-      // TODO: Get verse details 
-      let verseDetails = await BibleService.fetchVerse(verseAddress)
-      
-      // TODO: Display verse 
+      // Fetch and Display verse 
+      this.verseDetails = await BibleService.fetchVerse(verseAddress)
+
       // TODO: Cache validated verse address
-      
-      console.log(verseDetails)
     }
   }
 }
