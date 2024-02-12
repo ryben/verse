@@ -16,7 +16,9 @@ export default new Vuex.Store({
             'content': ''
         },
         verseFontSize: 72,
-        versions: []
+        versions: [],
+        isAutosizeText: false,
+        isAddTextBg: false
     },
     mutations: {
         setVerseDetails(state, details) {
@@ -28,7 +30,12 @@ export default new Vuex.Store({
         setVersions(state, versions) {
             state.versions = versions
         },
-        // Add other mutations as needed
+        setIsAutosizeText(state, isAutosizeText) {
+            state.isAutosizeText = isAutosizeText
+        },
+        setIsAddTextBg(state, isAddTextBg) {
+            state.isAddTextBg = isAddTextBg
+        },
     },
     actions: {
         loadBibleVersions({ commit }) {
@@ -70,6 +77,12 @@ export default new Vuex.Store({
 
             // TODO
             // this.saveFontSizeToLocalStorage(this.verseFontSize)
+        },
+        autoSizeText({ commit }, isAutosizeText) {
+            commit('setIsAutosizeText', isAutosizeText)
+        },
+        addTextBg({ commit }, isAddTextBg) {
+            commit('setIsAddTextBg', isAddTextBg)
         },
     },
     getters: {

@@ -87,10 +87,10 @@ export default {
             this.$store.dispatch('versionChanged', newVal)
         },
         isAutosizeText: function (newVal) {
-            EventBus.$emit('auto-size-text', newVal)
+            this.$store.dispatch('autoSizeText', newVal)
         },
         isAddTextBg: function (newVal) {
-            EventBus.$emit('add-text-bg', newVal)
+            this.$store.dispatch('addTextBg', newVal)
         },
     },
     methods: {

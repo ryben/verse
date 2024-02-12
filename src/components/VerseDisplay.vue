@@ -28,20 +28,13 @@ export default {
   props: [],
   data: function () {
     return {
-      isAutosizeText: false,
-      isAddTextBg: false
     }
-  },
-  created() {
-    EventBus.$on('auto-size-text', this.setAutoSizeText);
-  },
-  beforeDestroy() {
-    EventBus.$off('auto-size-text');
   },
   computed: {
     ...mapState({
       verseDetails: state => state.verseDetails,
-      verseFontSize: state => state.verseFontSize
+      verseFontSize: state => state.verseFontSize,
+      isAutosizeText: state => state.isAutosizeText
     }),
     verseFont() {
       if (this.isAutosizeText) {
@@ -62,9 +55,6 @@ export default {
     },
     setAutoSizeText(isAutosizeText) {
       this.isAutosizeText = isAutosizeText
-    },
-    addTextBg(isAddTextBg) {
-      this.isAddTextBg = isAddTextBg
     },
     rightClickHandler: function (event) {
       event.preventDefault();

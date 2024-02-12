@@ -6,8 +6,8 @@
 
 
 import { storageManager } from '../utils/storageManager.js';
+import { mapState } from 'vuex';
 import { utils } from '@/utils/utils.js';
-import { EventBus } from '@/utils/eventBus.js';
 
 export const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 
@@ -18,20 +18,15 @@ export default {
         return {
             selectedBg: '',
             bgCustomImgUrl: '',
-            isAddTextBg: '',
             defaultBg: 'blue.jpg',
         }
     },
-    created() {
-        EventBus.$on('add-text-bg', this.addTextBg);
-    },
-    beforeDestroy() {
-        EventBus.$offon('add-text-bg');
-    },
+
     mounted: function () {
         let bgSettings = storageManager.loadBgSettingsFromLocalStorage()
 
-        this.isAddTextBg = bgSettings.isAddTextBg
+        // TODO
+        // this.isAddTextBg = bgSettings.isAddTextBg
         this.bgCustomImgUrl = bgSettings.bgCustomImgUrl
         this.selectedBg = bgSettings.selectedBg
 
@@ -45,6 +40,11 @@ export default {
         }
     },
 
+    computed: {
+        ...mapState({
+            isAddTextBg: state => state.isAddTextBg
+        }),
+    },
     watch: {
         selectedBg: function (newVal) {
             this.onSelectBg(newVal)
@@ -53,17 +53,8 @@ export default {
         bgCustomImgUrl: function (newVal) {
             this.onSelectBg(this.selectedBg)
             this.saveBgImageCustomUrlToLocalStorage(newVal)
-        }
-    },
-
-    methods: {
-        getGdriveShareLinkRegex: function () {
-            return ".*drive\\.google\\.com\\/file\\/d\\/" // GDrive share link start
-                + "(.*)" // book
-                + "\\/.*" // everything else after
         },
-        addTextBg(isAddTextBg) {
-            this.isAddTextBg = isAddTextBg
+        isAddTextBg: function() {
             if (this.isAddTextBg == false) {
                 document.getElementById('verseContainer').style.background = ''
             } else {
@@ -72,6 +63,15 @@ export default {
             // TODO
             // this.saveTextBgToLocalStorage(newVal)
         },
+    },
+
+    methods: {
+        getGdriveShareLinkRegex: function () {
+            return ".*drive\\.google\\.com\\/file\\/d\\/" // GDrive share link start
+                + "(.*)" // book
+                + "\\/.*" // everything else after
+        },
+        
         selectDefaultBg() {
             this.selectedBg = this.defaultBg
         },
