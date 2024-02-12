@@ -18,7 +18,8 @@ export default new Vuex.Store({
         verseFontSize: 72,
         versions: [],
         isAutosizeText: false,
-        isAddTextBg: false
+        isAddTextBg: false,
+        background: ''
     },
     mutations: {
         setVerseDetails(state, details) {
@@ -35,6 +36,9 @@ export default new Vuex.Store({
         },
         setIsAddTextBg(state, isAddTextBg) {
             state.isAddTextBg = isAddTextBg
+        },
+        setBackground(state, background) {
+            state.background = background
         },
     },
     actions: {
@@ -83,6 +87,9 @@ export default new Vuex.Store({
         },
         addTextBg({ commit }, isAddTextBg) {
             commit('setIsAddTextBg', isAddTextBg)
+        },
+        updateBackground({ commit }, background) {
+            commit('setBackground', background)
         },
     },
     getters: {

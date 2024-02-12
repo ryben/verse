@@ -23,12 +23,10 @@
             <input type="checkbox" v-model="isAddTextBg">
             <span class="labels" data-on="With Text BG" data-off="As Is BG"></span>
         </label>
-        <select id="bgSelector" class="selector">
-            <!-- TODO: selectedBg - send event up -->
-            <!-- <select id="bgSelector" class="selector" v-model="selectedBg"> -->
+        <select id="bgSelector" class="selector" v-model="selectedBg">
             <option v-for="(value, key) in backgrounds" :value="value" v-bind:key="key">{{ key }}</option>
         </select>
-        <input id="bgImgCustomUrlInput" style="display:none;" v-model="bgCustomImgUrl" />
+        <input id="bgImgCustomUrlInput" v-model="bgCustomImgUrl" />
         <span id="errorDisplay" style="margin-left: 15px; color: darkred; font-weight: bold;">
             {{ errorDisplay }}
         </span>
@@ -43,6 +41,7 @@ import { mapState } from 'vuex';
 const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 const defaultVersionIndex = 0
 const defaultVerse = 'Gen 1:1'
+const defaultBg = '/backgrounds/blue.jpg'
 
 export default {
     name: 'ControlBar',
@@ -53,11 +52,12 @@ export default {
             currentVersion: '',
             isAutosizeText: false,
             isAddTextBg: false,
+            selectedBg: '',
             backgrounds: {
-                'Blue BG': 'blue.jpg',
-                'Brown BG': 'brown.jpg',
-                'Orange': 'orange.jpg',
-                'White': 'white.jpg',
+                'Blue BG': defaultBg,
+                'Brown BG': '/backgrounds/brown.jpg',
+                'Orange': '/backgrounds/orange.jpg',
+                'White': '/backgrounds/white.jpg',
                 'Image URL': BG_CUSTOM_URL
             },
             bgCustomImgUrl: ''
@@ -72,6 +72,8 @@ export default {
     mounted: function () {
         this.$store.dispatch('loadBibleVersions')
         this.verseAddressInput = defaultVerse
+
+        this.selectedBg = defaultBg
     },
     computed: {
         ...mapState({
@@ -92,6 +94,21 @@ export default {
         isAddTextBg: function (newVal) {
             this.$store.dispatch('addTextBg', newVal)
         },
+        selectedBg: function (newVal) {
+            const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
+
+            if (newVal == BG_CUSTOM_URL) {
+                bgImgCustomUrlInput.style.display = 'inline'
+                this.$store.dispatch('updateBackground', this.bgCustomImgUrl)
+            } else {
+                bgImgCustomUrlInput.style.display = 'none'
+                this.$store.dispatch('updateBackground', newVal)
+            }
+
+        },
+        bgCustomImgUrl: function (newVal) {
+            this.$store.dispatch('updateBackground', newVal)
+        }
     },
     methods: {
         onClickGo() {

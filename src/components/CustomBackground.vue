@@ -16,7 +16,6 @@ export default {
 
     data: function () {
         return {
-            selectedBg: '',
             bgCustomImgUrl: '',
             defaultBg: 'blue.jpg',
         }
@@ -28,7 +27,7 @@ export default {
         // TODO
         // this.isAddTextBg = bgSettings.isAddTextBg
         this.bgCustomImgUrl = bgSettings.bgCustomImgUrl
-        this.selectedBg = bgSettings.selectedBg
+        // this.selectedBg = bgSettings.selectedBg
 
         if (this.selectedBg == null) {
             this.selectDefaultBg()
@@ -42,16 +41,17 @@ export default {
 
     computed: {
         ...mapState({
-            isAddTextBg: state => state.isAddTextBg
+            isAddTextBg: state => state.isAddTextBg,
+            selectedBg: state => state.background
         }),
     },
     watch: {
         selectedBg: function (newVal) {
-            this.onSelectBg(newVal)
+            this.applyBg(newVal)
             storageManager.saveBgImageToLocalStorage(newVal)
         },
         bgCustomImgUrl: function (newVal) {
-            this.onSelectBg(this.selectedBg)
+            this.applyBg(newVal)
             this.saveBgImageCustomUrlToLocalStorage(newVal)
         },
         isAddTextBg: function() {
@@ -76,21 +76,8 @@ export default {
             this.selectedBg = this.defaultBg
         },
 
-        onSelectBg: function (selectedBg) {
-            // TODO: Send event up
-            // const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
-
-            if (selectedBg == BG_CUSTOM_URL) {
-                // TODO: Send event up
-                // bgImgCustomUrlInput.style.display = 'inline'
-                this.applyBg(this.bgCustomImgUrl)
-            } else {
-                // TODO: Send event up
-                // bgImgCustomUrlInput.style.display = 'none'
-                this.applyBg(require('@/assets/' + selectedBg))
-            }
-        },
         applyBg: function (imgUrl) {
+            console.log("Applying bg")
             if (!utils.isEmpty(imgUrl)) {
                 let processedUrl = this.processUrl(imgUrl)
 
