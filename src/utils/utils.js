@@ -6,6 +6,9 @@ export const utils = {
             return false
         }
     },
+    isNotEmpty(someVar) {
+        return !this.isEmpty(someVar)
+    },
     isEmptyObject: function (obj) {
         return Object.keys(obj).length === 0 && obj.constructor === Object;
     },

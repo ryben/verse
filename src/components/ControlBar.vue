@@ -37,6 +37,7 @@
 import BibleService from '@/services/BibleService.js'
 import { EventBus } from '@/utils/eventBus.js';
 import { mapState } from 'vuex';
+import { utils } from '@/utils/utils.js'
 
 const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 const defaultVersionIndex = 0
@@ -85,8 +86,10 @@ export default {
             this.currentVersion = this.versions[defaultVersionIndex].key
             this.$store.dispatch('verseEntered', { verseInput: defaultVerse, currentVersion: this.currentVersion })
         },
-        currentVersion: function (newVal) {
-            this.$store.dispatch('versionChanged', newVal)
+        currentVersion: function (newVal, oldVal) {
+            if (utils.isNotEmpty(oldVal)) {
+                this.$store.dispatch('versionChanged', newVal)
+            }
         },
         isAutosizeText: function (newVal) {
             this.$store.dispatch('autoSizeText', newVal)

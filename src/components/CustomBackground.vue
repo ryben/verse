@@ -77,7 +77,6 @@ export default {
         },
 
         applyBg: function (imgUrl) {
-            console.log("Applying bg")
             if (!utils.isEmpty(imgUrl)) {
                 let processedUrl = this.processUrl(imgUrl)
 

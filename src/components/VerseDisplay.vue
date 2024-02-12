@@ -19,9 +19,7 @@
 
 <script>
 
-import { EventBus } from '@/utils/eventBus.js';
 import { mapState } from 'vuex';
-
 
 export default {
   name: 'VerseDisplay',
@@ -51,15 +49,17 @@ export default {
   },
   methods: {
     showNextVerse: function (isNextVerse) {
-      this.$emit('verse-next', isNextVerse)
+      this.$store.dispatch('showNextVerse', isNextVerse)
+    },
+    increaseFontSize(isIncrease) {
+      this.$store.dispatch('increaseFontSize', isIncrease)
     },
     setAutoSizeText(isAutosizeText) {
       this.isAutosizeText = isAutosizeText
     },
-    rightClickHandler: function (event) {
-      event.preventDefault();
-      EventBus.$emit('focus-input');
-    },
+    focusInput() {
+      this.$emit('focus-input')
+    }
   }
 }
 

@@ -2,7 +2,7 @@
   <div id="app">
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
-      <VerseDisplay />
+      <VerseDisplay @focus-input="focusInput"/>
       <ControlBar />
     </div>
   </div>
@@ -25,9 +25,12 @@ export default {
   },
   methods: {
     rightClickHandler: function (event) {
-      event.preventDefault();
-      EventBus.$emit('focus-input');
+      event.preventDefault()
+      this.focusInput()
     },
+    focusInput() {
+      EventBus.$emit('focus-input')
+    }
   }
 }
 </script>

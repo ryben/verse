@@ -21,7 +21,6 @@ const verseAddressRegex =
         + "(\\d+)") // verse
 
 
-
 class BibleService {
     static instance = null
 
@@ -192,13 +191,11 @@ class BibleService {
 
         return verseInfo
     }
-    async fetchVerseDiffVersion(bibleVersionKey) {
-        if (this.currentVerseAddressValid) {
-            let diffVersionVerse = this.currentVerseAddress
-            diffVersionVerse.version = bibleVersionKey
+    getDiffVersionVerseAddress(bibleVersionKey) {
+        let diffVersionVerseAddress = this.currentVerseAddress
+        diffVersionVerseAddress.version = bibleVersionKey
 
-            return this.fetchVerse(diffVersionVerse)
-        }
+        return diffVersionVerseAddress
     }
     getVerseInfo(verseAddress) {
         let bibleVersion = this.getBibleVersion(verseAddress.version)
