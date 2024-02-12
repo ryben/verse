@@ -37,19 +37,20 @@
 
 <script>
 import BibleService from '@/services/BibleService.js'
+import { EventBus } from '@/utils/eventBus.js';
+import { mapState } from 'vuex';
 
 const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 const defaultVersionIndex = 0
+const defaultVerse = 'Gen 1:1'
 
 export default {
     name: 'ControlBar',
+    props: ['errorDisplay'], // TODO: Handle display error coming from parent
     data: function () {
         return {
-            defaultVerse: 'Apoc 1:1',
             verseAddressInput: '',
-            versions: [],
             currentVersion: '',
-            translations: { 'adb': 'Ang Dating Biblia' },
             isAutosizeText: false,
             isAddTextBg: false,
             backgrounds: {
@@ -59,40 +60,42 @@ export default {
                 'White': 'white.jpg',
                 'Image URL': BG_CUSTOM_URL
             },
-            bgCustomImgUrl: '',
-            errorDisplay: null,
+            bgCustomImgUrl: ''
         }
     },
+    created() {
+        EventBus.$on('focus-input', this.focusInput);
+    },
+    beforeDestroy() {
+        EventBus.$off('focus-input', this.focusInput);
+    },
     mounted: function () {
-        // Immediately invoked async function expression
-        (async () => {
-            await this.initBibleService()
-        })();
-
+        this.$store.dispatch('loadBibleVersions')
+        this.verseAddressInput = defaultVerse
+    },
+    computed: {
+        ...mapState({
+            versions: state => state.versions
+        }),
+    },
+    watch: {
+        versions: function () {
+            this.currentVersion = this.versions[defaultVersionIndex].key
+            this.$store.dispatch('verseEntered', { verseInput: defaultVerse, currentVersion: this.currentVersion })
+        },
+        currentVersion: function (newVal) {
+            this.$store.dispatch('versionChanged', newVal)
+        },
+        isAutosizeText: function (newVal) {
+            EventBus.$emit('auto-size-text', newVal)
+        },
+        isAddTextBg: function (newVal) {
+            EventBus.$emit('add-text-bg', newVal)
+        },
     },
     methods: {
-        async initBibleService() {
-            console.log("----")
-            await BibleService.init()
-
-            // Retrieve bible versions list
-            BibleService.bible.versions.forEach(version => {
-                this.versions.push({
-                    'key': version.key,
-                    'name': version.name
-                })
-            })
-
-            // Select default version (first one)
-            this.currentVersion = this.versions[defaultVersionIndex].key
-            this.verseAddressInput = this.defaultVerse
-
-            this.$emit('verse-entered', [this.defaultVerse, this.currentVersion])
-        },
         onClickGo() {
-            // TODO
-            // let verseAddress = bibleService.processVerseInput(verseAddressInput)
-            this.$emit('verse-entered', [this.verseAddressInput, this.currentVersion])
+            this.$store.dispatch('verseEntered', { verseInput: this.verseAddressInput, currentVersion: this.currentVersion })
             // TODO
             // this.saveVerseToLocalStorage(verseAddress)
         },
@@ -103,21 +106,16 @@ export default {
             }
         },
         increaseFontSize(isIncrease) {
-            console.log(isIncrease)
-            // TODO: Emit event up
+            this.$store.dispatch('increaseFontSize', isIncrease)
         },
         focusInput() {
             let verseInput = this.$refs.verseInput
             verseInput.focus()
             verseInput.select()
         },
-        displayError(errorMsg) {
-            this.errorDisplay = errorMsg
-        },
         showNextVerse(isNextVerse) {
-            console.log(isNextVerse)
-            // TODO: Emit event up
-        }
+            this.$store.dispatch('showNextVerse', isNextVerse)
+        },
     }
 }
 </script>

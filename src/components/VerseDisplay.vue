@@ -19,28 +19,30 @@
 
 <script>
 
-// import { BibleService } from '../services/BibleService'
+import { EventBus } from '@/utils/eventBus.js';
+import { mapState } from 'vuex';
+
 
 export default {
   name: 'VerseDisplay',
-  props: ['verseDetails'],
+  props: [],
   data: function () {
     return {
-      verseAddress: {
-        translation: 'adb',
-        book: '1',
-        chapter: '1',
-        verse: '1'
-      },
-      verseFontSize: 72,
-      verseInfo: {
-        title: 'Genesis 1:1',
-        translation: 'Ang Dating Biblia',
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-      }
+      isAutosizeText: false,
+      isAddTextBg: false
     }
   },
+  created() {
+    EventBus.$on('auto-size-text', this.setAutoSizeText);
+  },
+  beforeDestroy() {
+    EventBus.$off('auto-size-text');
+  },
   computed: {
+    ...mapState({
+      verseDetails: state => state.verseDetails,
+      verseFontSize: state => state.verseFontSize
+    }),
     verseFont() {
       if (this.isAutosizeText) {
         return {
@@ -56,8 +58,18 @@ export default {
   },
   methods: {
     showNextVerse: function (isNextVerse) {
-      console.log(isNextVerse)
-    }
+      this.$emit('verse-next', isNextVerse)
+    },
+    setAutoSizeText(isAutosizeText) {
+      this.isAutosizeText = isAutosizeText
+    },
+    addTextBg(isAddTextBg) {
+      this.isAddTextBg = isAddTextBg
+    },
+    rightClickHandler: function (event) {
+      event.preventDefault();
+      EventBus.$emit('focus-input');
+    },
   }
 }
 

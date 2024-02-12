@@ -2,51 +2,32 @@
   <div id="app">
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
-      <VerseDisplay :verse-details="verseDetails"/>
-      <ControlBar @verse-entered="verseEntered" />
+      <VerseDisplay />
+      <ControlBar />
     </div>
-    <!-- <VerseReader /> -->
   </div>
 </template>
 
 <script>
 
-// import VerseReader from './components/VerseReader.vue'
 import CustomBackground from '@/components/CustomBackground.vue'
 import VerseDisplay from '@/components/VerseDisplay.vue'
 import ControlBar from '@/components/ControlBar.vue'
 
-import BibleService from '@/services/BibleService.js'
+import { EventBus } from '@/utils/eventBus.js';
 
 export default {
   name: 'App',
   components: {
-    // VerseReader
     CustomBackground,
     VerseDisplay,
     ControlBar
   },
-  data: function () {
-    return {
-      verseDetails: {
-        'title' : '',
-        'version' : '',
-        'content' : ''
-      }
-    }
-  },
   methods: {
-    async verseEntered(input) {
-      let verseInput = input[0]
-      let bibleVersionKey = input[1]
-
-      let verseAddress = await BibleService.parseVerseInput(verseInput, bibleVersionKey)
-
-      // Fetch and Display verse 
-      this.verseDetails = await BibleService.fetchVerse(verseAddress)
-
-      // TODO: Cache validated verse address
-    }
+    rightClickHandler: function (event) {
+      event.preventDefault();
+      EventBus.$emit('focus-input');
+    },
   }
 }
 </script>

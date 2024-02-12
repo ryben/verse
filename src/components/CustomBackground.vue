@@ -7,6 +7,7 @@
 
 import { storageManager } from '../utils/storageManager.js';
 import { utils } from '@/utils/utils.js';
+import { EventBus } from '@/utils/eventBus.js';
 
 export const BG_CUSTOM_URL = "BG_CUSTOM_URL"
 
@@ -21,7 +22,12 @@ export default {
             defaultBg: 'blue.jpg',
         }
     },
-
+    created() {
+        EventBus.$on('add-text-bg', this.addTextBg);
+    },
+    beforeDestroy() {
+        EventBus.$offon('add-text-bg');
+    },
     mounted: function () {
         let bgSettings = storageManager.loadBgSettingsFromLocalStorage()
 
@@ -56,7 +62,16 @@ export default {
                 + "(.*)" // book
                 + "\\/.*" // everything else after
         },
-
+        addTextBg(isAddTextBg) {
+            this.isAddTextBg = isAddTextBg
+            if (this.isAddTextBg == false) {
+                document.getElementById('verseContainer').style.background = ''
+            } else {
+                document.getElementById('verseContainer').style.background = '#00000099'
+            }
+            // TODO
+            // this.saveTextBgToLocalStorage(newVal)
+        },
         selectDefaultBg() {
             this.selectedBg = this.defaultBg
         },
