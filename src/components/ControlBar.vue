@@ -3,7 +3,7 @@
         <input v-model="verseAddressInput" v-on:keyup.enter="onClickGo" v-on:keyup.up="showNextVerse(false)"
             v-on:keyup.down="showNextVerse(true)" v-on:keyup.page-up="showNextVerse(false)"
             v-on:keyup.page-down="showNextVerse(true)" id="verseInput" ref="verseInput" @paste="onPasteVerseAddress" />
-        <select name="translation" id="translationInput" class="selector" v-model="currentVersion">
+        <select name="translation" id="translationInput" class="selector" v-model="controlVersion">
             <option v-for="version in versions" :value="version.key" :key="version.key">{{ version.name }}</option>
         </select>
         <a class="button" style="margin-right: 15px; width: 40px;" @click="onClickGo">Go</a>
@@ -21,13 +21,13 @@
         </label>
         <label class="toggle">
             <input type="checkbox" v-model="isAddTextBg">
-            <span class="labels" data-on="With Text BG" data-off="As Is BG"></span>
+            <span class="labels" data-on="With Shade" data-off="No Shade"></span>
         </label>
         <select id="bgSelector" class="selector" v-model="selectedBg">
             <option v-for="(value, key) in backgrounds" :value="value" v-bind:key="key">{{ key }}</option>
         </select>
-        <input id="bgImgCustomUrlInput" v-model="bgCustomImgUrl" />
-        <span id="errorDisplay" style="margin-left: 15px; color: darkred; font-weight: bold;">
+        <input id="bgImgCustomUrlInput" v-model="bgImageCustomUrl" />
+        <span id="errorDisplay">
             {{ errorDisplay }}
         </span>
     </div>
@@ -38,22 +38,21 @@ import BibleService from '@/services/BibleService.js'
 import { EventBus } from '@/utils/eventBus.js';
 import { mapState } from 'vuex';
 import { utils } from '@/utils/utils.js'
+import { backgroundService } from '../services/BackgroundService';
 
-const BG_CUSTOM_URL = "BG_CUSTOM_URL"
+const BG_CUSTOM_URL = backgroundService.BG_CUSTOM_URL
 const defaultVersionIndex = 0
 const defaultVerse = 'Gen 1:1'
 const defaultBg = '/backgrounds/blue.jpg'
 
 export default {
     name: 'ControlBar',
-    props: ['errorDisplay'], // TODO: Handle display error coming from parent
+    props: [''],
     data: function () {
         return {
             verseAddressInput: '',
-            currentVersion: '',
             isAutosizeText: false,
-            isAddTextBg: false,
-            selectedBg: '',
+            controlVersion: '',
             backgrounds: {
                 'Blue BG': defaultBg,
                 'Brown BG': '/backgrounds/brown.jpg',
@@ -61,7 +60,6 @@ export default {
                 'White': '/backgrounds/white.jpg',
                 'Image URL': BG_CUSTOM_URL
             },
-            bgCustomImgUrl: ''
         }
     },
     created() {
@@ -71,25 +69,54 @@ export default {
         EventBus.$off('focus-input', this.focusInput);
     },
     mounted: function () {
-        this.$store.dispatch('loadBibleVersions')
+        this.$store.dispatch('loadBgFromStorage')
         this.verseAddressInput = defaultVerse
+        this.showCustomUrlInput(this.selectedBg == BG_CUSTOM_URL)
 
-        this.selectedBg = defaultBg
+        if (this.selectedBg == BG_CUSTOM_URL && utils.isEmpty(this.bgImageCustomUrl)) {
+            this.selectedBg = defaultBg
+        }
     },
     computed: {
-        ...mapState({
-            versions: state => state.versions
-        }),
+        ...mapState(['verseDetails', 'verseAddress', 'versions', 'errorDisplay']),
+        selectedBg: {
+            get() {
+                return this.$store.state.selectedBg
+            },
+            set(value) {
+                this.$store.dispatch('setSelectedBg', value)
+            }
+        },
+        bgImageCustomUrl: {
+            get() {
+                return this.$store.state.bgImageCustomUrl
+            },
+            set(value) {
+                this.$store.dispatch('setBgImageCustomUrl', value)
+            }
+        },
+        isAddTextBg: {
+            get() {
+                return this.$store.state.isAddTextBg
+            },
+            set(value) {
+                this.$store.dispatch('addTextBg', value)
+            }
+        }
+
     },
     watch: {
-        versions: function () {
-            this.currentVersion = this.versions[defaultVersionIndex].key
-            this.$store.dispatch('verseEntered', { verseInput: defaultVerse, currentVersion: this.currentVersion })
+        verseAddress: function (newVal) {
+            this.controlVersion = newVal.version
         },
-        currentVersion: function (newVal, oldVal) {
+        controlVersion: function (newVal, oldVal) {
             if (utils.isNotEmpty(oldVal)) {
                 this.$store.dispatch('versionChanged', newVal)
             }
+        },
+        versions: function () {
+            this.controlVersion = this.versions[defaultVersionIndex].key
+            this.$store.dispatch('verseEntered', { verseInput: defaultVerse, currentVersion: this.controlVersion })
         },
         isAutosizeText: function (newVal) {
             this.$store.dispatch('autoSizeText', newVal)
@@ -98,26 +125,25 @@ export default {
             this.$store.dispatch('addTextBg', newVal)
         },
         selectedBg: function (newVal) {
-            const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
-
-            if (newVal == BG_CUSTOM_URL) {
-                bgImgCustomUrlInput.style.display = 'inline'
-                this.$store.dispatch('updateBackground', this.bgCustomImgUrl)
-            } else {
-                bgImgCustomUrlInput.style.display = 'none'
-                this.$store.dispatch('updateBackground', newVal)
+            this.showCustomUrlInput(newVal == BG_CUSTOM_URL)
+            if (utils.isEmpty(newVal)) {
+                this.selectedBg = defaultBg
             }
-
         },
-        bgCustomImgUrl: function (newVal) {
-            this.$store.dispatch('updateBackground', newVal)
+        errorDisplay: function (newVal) {
+            let display = document.getElementById("errorDisplay")
+            if (utils.isNotEmpty(newVal)) {
+                display.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
+                display.style.borderRadius = '5px';
+                display.style.padding = '1px 8px';
+            } else {
+                display.style.backgroundColor = ''
+            }
         }
     },
     methods: {
         onClickGo() {
-            this.$store.dispatch('verseEntered', { verseInput: this.verseAddressInput, currentVersion: this.currentVersion })
-            // TODO
-            // this.saveVerseToLocalStorage(verseAddress)
+            this.$store.dispatch('verseEntered', { verseInput: this.verseAddressInput, currentVersion: this.controlVersion })
         },
         onPasteVerseAddress(event) {
             let pasted = event.clipboardData.getData('text')
@@ -135,6 +161,15 @@ export default {
         },
         showNextVerse(isNextVerse) {
             this.$store.dispatch('showNextVerse', isNextVerse)
+        },
+        showCustomUrlInput(isShow) {
+            const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
+
+            if (isShow) {
+                bgImgCustomUrlInput.style.display = 'inline'
+            } else {
+                bgImgCustomUrlInput.style.display = 'none'
+            }
         },
     }
 }
@@ -177,7 +212,6 @@ input {
     border-radius: 2px;
     padding: 5px 15px;
     font-weight: bold;
-    text-transform: uppercase;
 }
 
 #verseInput {
@@ -282,6 +316,12 @@ input {
 
 .toggle input:checked~.labels::before {
     transform: translateX(var(--width));
+}
+
+#errorDisplay {
+    color: rgb(255, 65, 65);
+    margin-left: 10px;
+    font-weight: bold;
 }
 
 /* END Toggle */

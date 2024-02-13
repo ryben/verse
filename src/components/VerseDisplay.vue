@@ -29,11 +29,7 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      verseDetails: state => state.verseDetails,
-      verseFontSize: state => state.verseFontSize,
-      isAutosizeText: state => state.isAutosizeText
-    }),
+    ...mapState(['verseDetails', 'verseFontSize', 'isAutosizeText']),
     verseFont() {
       if (this.isAutosizeText) {
         return {
@@ -54,12 +50,10 @@ export default {
     increaseFontSize(isIncrease) {
       this.$store.dispatch('increaseFontSize', isIncrease)
     },
-    setAutoSizeText(isAutosizeText) {
-      this.isAutosizeText = isAutosizeText
-    },
     focusInput() {
       this.$emit('focus-input')
-    }
+    },
+
   }
 }
 

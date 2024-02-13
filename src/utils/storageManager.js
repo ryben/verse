@@ -5,7 +5,7 @@ const KEY_BG_IMAGE = "KEY_BG_IMAGE"
 const KEY_BG_IMAGE_CUSTOM_URL = "KEY_BG_IMAGE_CUSTOM_URL"
 
 export const storageManager = {
-    
+
     saveVerseToLocalStorage: function (verseAddress) {
         localStorage.setItem(KEY_VERSE_ADDRESS, JSON.stringify(verseAddress))
     },
@@ -21,27 +21,14 @@ export const storageManager = {
     saveBgImageCustomUrlToLocalStorage: function (bgCustomUrl) {
         localStorage.setItem(KEY_BG_IMAGE_CUSTOM_URL, bgCustomUrl)
     },
-    loadFromLocalStorage: function () {
-        let savedVerseAddress = localStorage.getItem(KEY_VERSE_ADDRESS)
-        this.verseAddress = JSON.parse(savedVerseAddress)
-
-        let savedVerseFontSize = localStorage.getItem(KEY_VERSE_FONT_SIZE)
-        if (!isNaN(savedVerseFontSize)) {
-            this.verseFontSize = parseInt(savedVerseFontSize)
+    loadState: function () {
+        return {
+            'verseAddress': JSON.parse(localStorage.getItem(KEY_VERSE_ADDRESS)),
+            'verseFontSize': parseInt(localStorage.getItem(KEY_VERSE_FONT_SIZE)),
+            'isAddTextBg': localStorage.getItem(KEY_IS_ADD_TEXT_BG) == 'true',
+            'bgCustomImgUrl': localStorage.getItem(KEY_BG_IMAGE_CUSTOM_URL),
+            'selectedBg': localStorage.getItem(KEY_BG_IMAGE)
         }
-
-        this.loadBgSettingsFromLocalStorage()
-    },
-    loadBgSettingsFromLocalStorage: function () {
-        let bgSettings = {}
-
-        bgSettings['isAddTextBg'] = localStorage.getItem(KEY_IS_ADD_TEXT_BG) == 'true'
-
-        let bgCustomImgUrl = localStorage.getItem(KEY_BG_IMAGE_CUSTOM_URL)
-        bgSettings['bgCustomImgUrl'] = bgCustomImgUrl == null ? "" : bgCustomImgUrl
-
-        bgSettings['selectedBg'] = localStorage.getItem(KEY_BG_IMAGE)
-
-        return bgSettings
-    },
+    }
+    
 }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { utils } from '@/utils/utils.js'
 
-const baseUrl = '/verses' // TODO: Group constants
+const baseUrl = '/verses'
 const versionsFilename = 'versions.json'
 const sourceFileExt = '.json'
 const bookNamesFilename = 'books.json'
@@ -133,9 +133,11 @@ class BibleService {
                         return await this.findBookMatchInVersion(bookName, versionKey)
                     }
                 } catch {
-                    throw `Book not found: ${bookName}` // TODO: Add hint for possible matches
+                    // do nothing
                 }
             }
+            throw `Book not found: ${bookName}` // TODO: Add hint for possible matches
+
         }
     }
     async findBookMatchInVersion(bookName, bibleVersionKey) {
@@ -271,9 +273,6 @@ class BibleService {
             chapter,
             verse
         )
-
-        // TODO
-        // this.saveVerseToLocalStorage(this.verseAddress) 
     }
 
     loadVerseParamQuery() {
@@ -299,8 +298,6 @@ class BibleService {
 
     increaseFontSize(isIncrease) {
         this.verseFontSize += (3 * (isIncrease ? 1 : -1))
-        // TODO:
-        // this.saveFontSizeToLocalStorage(this.verseFontSize)
     }
 }
 

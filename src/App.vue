@@ -2,7 +2,7 @@
   <div id="app">
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
-      <VerseDisplay @focus-input="focusInput"/>
+      <VerseDisplay @focus-input="focusInput" />
       <ControlBar />
     </div>
   </div>
@@ -22,6 +22,13 @@ export default {
     CustomBackground,
     VerseDisplay,
     ControlBar
+  },
+  mounted: function () {
+    window.addEventListener('storage', () => {
+      this.$store.dispatch('loadStateFromStorage')
+      this.$store.dispatch('loadBgFromStorage')
+    })
+
   },
   methods: {
     rightClickHandler: function (event) {
