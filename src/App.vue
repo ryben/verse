@@ -24,11 +24,17 @@ export default {
     ControlBar
   },
   mounted: function () {
-    window.addEventListener('storage', () => {
-      this.$store.dispatch('loadStateFromStorage')
-      this.$store.dispatch('loadBgFromStorage')
-    })
+    const handleStorageEvent = () => {
+      const { dispatch } = this.$store;
+      dispatch('loadStateFromStorage');
+      dispatch('loadBgFromStorage');
+    }
 
+    window.addEventListener('storage', handleStorageEvent);
+    
+    this.$once('hook:beforeDestroy', () => {
+      window.removeEventListener('storage', handleStorageEvent);
+    })
   },
   methods: {
     rightClickHandler: function (event) {

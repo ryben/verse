@@ -1,7 +1,5 @@
 <template>
-  <div id="verseContainer" tabindex="0" @keydown.left="showNextVerse(false)" @keydown.right="showNextVerse(true)"
-    @keydown.page-up="showNextVerse(false)" @keydown.page-down="showNextVerse(true)" @keydown.esc="focusInput()"
-    @keydown.down="increaseFontSize(false)" @keydown.up="increaseFontSize(true)">
+  <div id="verseContainer" tabindex="0" @keydown="handleKeydown" v-on:copy="handleCopy">
     <div id="verseTitleTranslationContainer">
       <div id="verseTitle">
         {{ verseDetails.title.toUpperCase() }}
@@ -28,6 +26,12 @@ export default {
     return {
     }
   },
+  mounted() {
+    this.$nextTick(() => {
+      const content = document.getElementById('verseContainer')
+      content.addEventListener('copy', this.handleCopy)
+    })
+  },
   computed: {
     ...mapState(['verseDetails', 'verseFontSize', 'isAutosizeText']),
     verseFont() {
@@ -53,7 +57,40 @@ export default {
     focusInput() {
       this.$emit('focus-input')
     },
-
+    handleCopy(e) {
+      e.preventDefault(); // Prevent the default copy behavior
+      const selection = document.getSelection();
+      if (selection) {
+        e.clipboardData.setData('text/plain', selection.toString()); // Copy only the text part
+      }
+    },
+    handleKeydown(event) {
+      switch (event.key) {
+        case 'ArrowLeft':
+        case 'PageUp':
+          this.showNextVerse(false);
+          break;
+        case 'ArrowRight':
+        case 'PageDown':
+          this.showNextVerse(true);
+          break;
+        case 'Escape':
+          this.focusInput();
+          break;
+        case 'ArrowDown':
+          this.increaseFontSize(false);
+          break;
+        case 'ArrowUp':
+          this.increaseFontSize(true);
+          break;
+      }
+    },
+    beforeDestroy() {
+      const content = document.getElementById('verseContainer');
+      if (content) {
+        content.removeEventListener('copy', this.handleCopy);
+      }
+    }
   }
 }
 

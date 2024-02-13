@@ -8,7 +8,7 @@ import { storageManager } from '@/utils/storageManager.js'
 Vue.use(Vuex);
 
 
-// Create and export the store
+// TODO: Break down into modules
 export default new Vuex.Store({
 
     state: {
