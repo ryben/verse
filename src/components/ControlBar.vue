@@ -43,7 +43,7 @@ import { backgroundService } from '../services/BackgroundService';
 const BG_CUSTOM_URL = backgroundService.BG_CUSTOM_URL
 const defaultVersionIndex = 0
 const defaultVerse = 'Gen 1:1'
-const defaultBg = '/backgrounds/blue.jpg'
+const defaultBg = 'blue.jpg'
 
 export default {
     name: 'ControlBar',
@@ -55,9 +55,9 @@ export default {
             controlVersion: '',
             backgrounds: {
                 'Blue BG': defaultBg,
-                'Brown BG': '/backgrounds/brown.jpg',
-                'Orange': '/backgrounds/orange.jpg',
-                'White': '/backgrounds/white.jpg',
+                'Brown BG': 'brown.jpg',
+                'Orange': 'orange.jpg',
+                'White': 'white.jpg',
                 'Image URL': BG_CUSTOM_URL
             },
         }

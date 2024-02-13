@@ -1,9 +1,5 @@
+const isDeployLocal = process.env.DEPLOY_LOCAL === 'true';
+
 module.exports = {
-    publicPath: process.env.NODE_ENV === 'production'
-        ? '/verse/'
-        : '/',
-    devServer: {
-        host: '0.0.0.0',
-        disableHostCheck: true
-    }
-}
+  publicPath: isDeployLocal ? '/' : (process.env.NODE_ENV === 'production' ? '/verse/' : '/')
+};

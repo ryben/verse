@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { utils } from '@/utils/utils.js'
 
-const baseUrl = '/verses'
+const baseUrl = `${process.env.BASE_URL}verses`
 const versionsFilename = 'versions.json'
 const sourceFileExt = '.json'
 const bookNamesFilename = 'books.json'

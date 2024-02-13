@@ -14,13 +14,10 @@ export default {
 
     data: function () {
         return {
-            bgCustomImgUrl: '',
-            defaultBg: 'blue.jpg',
         }
     },
 
     mounted: function () {
-
     },
 
     computed: {
@@ -31,7 +28,7 @@ export default {
             if (newVal == backgroundService.BG_CUSTOM_URL) {
                 this.applyCustomBg(this.bgImageCustomUrl)
             } else {
-                this.applyBg(newVal)
+                this.applyStaticBg(newVal)
             }
         },
         isAddTextBg: function () {
@@ -49,6 +46,12 @@ export default {
     },
 
     methods: {
+        applyStaticBg(filename) {
+            let baseUrl = `${process.env.BASE_URL}backgrounds`
+
+            let url = baseUrl + `/${filename}`
+            this.applyBg(url)
+        },
         applyBg(url) {
             const body = document.querySelector('body')
             body.style.background = 'url(\'' + url + '\')'
