@@ -148,7 +148,7 @@ export default {
         onPasteVerseAddress(event) {
             let pasted = event.clipboardData.getData('text')
             if (pasted.match(BibleService.verseAddressRegex)) {
-                this.processVerseInput(pasted)
+                this.$store.dispatch('verseEntered', { verseInput: pasted, currentVersion: this.controlVersion })
             }
         },
         increaseFontSize(isIncrease) {
