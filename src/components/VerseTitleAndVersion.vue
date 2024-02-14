@@ -173,7 +173,7 @@ export default {
           border-radius: 10px;
           background-color: rgba(0, 0, 0, 0.3);
           padding: 5px 16px;
-          margin: 0px -16px;
+          margin: clamp(0.1rem, 0.3vw + 0.6vh, 0.4rem) -16px;
         `
       } else {
         elementRef.style.cssText = ''
@@ -208,21 +208,24 @@ export default {
 <style>
 #verseTitleTranslationContainer {
   position: relative;
+  white-space: nowrap;
 }
 
 #verseTitle {
   color: white;
-  font-size: 50px;
   text-transform: uppercase;
+  font-size: clamp(0.8rem, 1.7vw + 3.0vh, 3rem);
+  font-weight: ;
 }
 
 #verseVersion {
   color: yellow;
+  display: inline-block;
   font-style: oblique;
-  font-size: 35px;
-  margin-top: 10px;
   text-transform: uppercase;
-  display: inline-block
+  margin-bottom: 10px;
+  margin-top: clamp(0.2rem, 0.6vw + 1.2vh, 0.8rem);
+  font-size: clamp(0.8rem, 1.0vw + 2vh, 2rem);
 }
 
 #versionsDropdown {
@@ -256,94 +259,5 @@ export default {
 
 #versionsDropdown li:active {
   background-color: #d0d0d0;
-}
-
-
-
-
-@media screen and (min-width: 1201px),
-screen and (min-height: 700px) {
-
-  #verseTitle {
-    font-size: 50px;
-  }
-
-  #verseVersion {
-    font-size: 35px;
-    margin-top: 10px;
-  }
-
-}
-
-@media screen and (max-width: 1200px),
-screen and (max-height: 700px) {
-  #verseTitle {
-    font-size: 25px;
-  }
-
-  #verseVersion {
-    font-size: 25px;
-    margin-top: 10px;
-  }
-}
-
-@media screen and (max-width: 800px) {
-  #verseTitle {
-    font-size: 25px;
-  }
-
-  #verseVersion {
-    font-size: 13px;
-    margin-top: 5px;
-  }
-}
-
-@media screen and (max-height: 400px) {
-  #verseTitleTranslationContainer {
-    font-size: 25px;
-    margin-left: 20px;
-    min-width: 120px;
-  }
-
-  #verseTitle {
-    font-size: 18px;
-  }
-
-  #verseVersion {
-    font-size: 13px;
-    margin-top: 5px;
-  }
-}
-
-@media screen and (max-height: 200px) {
-
-  #verseTitleTranslationContainer {
-    font-size: 25px;
-    text-align: center;
-    margin-left: 10px;
-    min-width: 100px;
-  }
-
-  #verseTitle {
-    font-size: 13px;
-  }
-
-  #verseVersion {
-    font-size: 10px;
-    margin-top: 5px;
-  }
-
-}
-
-@media screen and (max-width: 400px) {
-
-  #verseTitle {
-    font-size: 17px;
-  }
-
-  #verseVersion {
-    font-size: 13px;
-    margin-top: 5px;
-  }
 }
 </style>

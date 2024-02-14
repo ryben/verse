@@ -3,7 +3,7 @@
     <div id="verseTitleTranslationContainer">
       <VerseTitleAndVersion :verse-details="verseDetails" />
     </div>
-    <div id="verseContent" ref="verseContent" :style="verseFont">
+    <div id="verseContent" ref="verseContent">
       {{ verseDetails.content }}
     </div>
   </div>
@@ -100,109 +100,41 @@ export default {
   font-family: Arial, Helvetica, sans-serif;
   height: 77%;
   position: absolute;
-  top: 30px;
-  left: 30px;
-  right: 30px;
+  top: 10px;
+  left: 10px;
+  right: 10px;
   outline: none;
+
+  padding-top: clamp(0.1rem, 2vw + 5vh, 4.4rem);
+  padding-left: clamp(0.1rem, 6vw + 2vh, 7rem);
+  padding-right: clamp(0.1rem, 5vw, 20rem);
 }
 
 #verseContent {
   color: white;
   text-align: center;
-  font-size: 72px;
-  margin-top: 50px;
+  margin-top: clamp(0.1rem, 1vw + 3vh, 10rem);
+  font-size: clamp(0.5rem, 1.5vw + 3.5vh, 6rem);
 }
 
-@media screen and (min-width: 1201px),
-screen and (min-height: 700px) {
+@media screen and (max-height: 280px) {
+  #verseTitleTranslationContainer {
+    margin-top: clamp(0.1rem, 2vw + 3vh, 2rem);
+    margin-left: clamp(0.1rem, 0.5vw + 1vh, 0.2rem);
+  }
+
   #verseContainer {
-    padding-top: 50px;
-    padding-bottom: 50px;
-    padding-left: 100px;
-    padding-right: 100px;
-  }
-
-  #verseContent {
-    font-size: 80px;
-  }
-
-}
-
-@media screen and (max-width: 1200px),
-screen and (max-height: 700px) {
-  #verseContainer {
-    padding-top: 40px;
-    padding-bottom: 30px;
-    padding-left: 50px;
-    padding-right: 50px;
-  }
-
-  #verseContent {
-    font-size: 45px;
-  }
-}
-
-@media screen and (max-width: 800px) {
-  #verseContainer {
-    padding-top: 30px;
-    padding-bottom: 20px;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  #verseContent {
-    margin-top: 20px;
-    font-size: 30px;
-  }
-}
-
-@media screen and (max-height: 400px) {
-  #verseContainer {
-    padding-top: 0px;
-    padding-bottom: 20px;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-
-  #verseContent {
-    margin-top: 20px;
-    font-size: 20px;
-    margin-left: 40px;
-    margin-right: 20px;
-  }
-}
-
-@media screen and (max-height: 200px) {
-  #verseContainer {
-    padding-top: 0px;
-    padding-bottom: 20px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-top: clamp(0.1rem, 1vw + 2vh, 2rem);
+    padding-left: clamp(0.1rem, 3vw + 2vh, 3rem);
+    padding-right: clamp(0.1rem, 5vw, 3rem);
     display: flex;
   }
 
-
   #verseContent {
-    margin-top: 0px;
-    font-size: 17px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-top: clamp(0.1rem, 1vw + 3vh, 10rem);
+    font-size: clamp(0.5rem, 1.5vw + 3.5vh, 6rem);
+    margin-left: clamp(0.1rem, 1vw + 3vh, 10rem);
+    margin-right: 5px;
   }
-}
-
-@media screen and (max-width: 400px) {
-  #verseContainer {
-    padding-top: 30px;
-    padding-bottom: 20px;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  #verseContent {
-    margin-top: 20px;
-    font-size: 20px;
-  }
-
 }
 </style>
