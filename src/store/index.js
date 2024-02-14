@@ -19,9 +19,8 @@ export default new Vuex.Store({
         },
         verseAddress: {},
         currentVersion: '',
-        verseFontSize: 72,
+        verseFontSize: 0.0,
         versions: [],
-        isAutosizeText: false,
         isAddTextBg: false,
         selectedBg: '',
         bgImageCustomUrl: null,
@@ -42,9 +41,6 @@ export default new Vuex.Store({
         },
         setCurrentVersion(state, currentVersion) {
             state.currentVersion = currentVersion
-        },
-        setIsAutosizeText(state, isAutosizeText) {
-            state.isAutosizeText = isAutosizeText
         },
         setIsAddTextBg(state, isAddTextBg) {
             state.isAddTextBg = isAddTextBg
@@ -108,14 +104,10 @@ export default new Vuex.Store({
             storageManager.saveVerseToLocalStorage(verseAddress)
         },
         increaseFontSize({ commit, getters }, isIncrease) {
-            let newFontSize = getters.verseFontSize + (3 * (isIncrease ? 1 : -1))
+            let newFontSize = getters.verseFontSize + 0.2 * (isIncrease ? 1 : -1)
 
             commit('setVerseFontSize', newFontSize)
             storageManager.saveFontSizeToLocalStorage(newFontSize)
-        },
-        autoSizeText({ commit }, isAutosizeText) {
-            // TODO: Save to storage, apply on app load, but don't apply if listened to storage events
-            commit('setIsAutosizeText', isAutosizeText)
         },
         addTextBg({ commit }, isAddTextBg) {
             storageManager.saveTextBgToLocalStorage(isAddTextBg)
@@ -135,7 +127,7 @@ export default new Vuex.Store({
             let savedState = storageManager.loadState()
 
             dispatch('fetchVerseDetails', savedState.verseAddress)
-            commit('setVerseFontSize', savedState.verseFontSize)
+            commit('setVerseFontSize', parseFloat(savedState.verseFontSize))
         },
         loadBgFromStorage({ commit }) {
             let savedState = storageManager.loadState()

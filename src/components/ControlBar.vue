@@ -11,14 +11,10 @@
             <a class="button" @click="showNextVerse(false)">&lt; Prev</a>
             <a class="button" @click="showNextVerse(true)">Next &gt;</a>
         </span>
-        <span>
+        <span style="margin-right: 15px;">
             <a class="button" @click="increaseFontSize(false)">−</a>
             <a class="button" @click="increaseFontSize(true)">+</a>
         </span>
-        <label class="toggle" style="margin-right: 15px;">
-            <input type="checkbox" v-model="isAutosizeText">
-            <span class="labels" data-on="Auto-size" data-off="Custom Size"></span>
-        </label>
         <label class="toggle">
             <input type="checkbox" v-model="isAddTextBg">
             <span class="labels" data-on="With Shade" data-off="No Shade"></span>
@@ -51,7 +47,6 @@ export default {
     data: function () {
         return {
             verseAddressInput: '',
-            isAutosizeText: false,
             controlVersion: '',
             backgrounds: {
                 'Blue BG': defaultBg,
@@ -117,9 +112,6 @@ export default {
         versions: function () {
             this.controlVersion = this.versions[defaultVersionIndex].key
             this.$store.dispatch('verseEntered', { verseInput: defaultVerse, currentVersion: this.controlVersion })
-        },
-        isAutosizeText: function (newVal) {
-            this.$store.dispatch('autoSizeText', newVal)
         },
         isAddTextBg: function (newVal) {
             this.$store.dispatch('addTextBg', newVal)
@@ -243,8 +235,6 @@ input {
 #bgImgCustomUrlInput {
     width: 100px;
 }
-
-
 
 /* START Toggle */
 

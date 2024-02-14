@@ -1,5 +1,7 @@
 <template>
-    <div></div>
+    <div id="textShade">
+
+    </div>
 </template>
 
 <script>
@@ -33,9 +35,9 @@ export default {
         },
         isAddTextBg: function () {
             if (this.isAddTextBg == false) {
-                document.getElementById('verseContainer').style.background = ''
+                document.getElementById('textShade').style.background = ''
             } else {
-                document.getElementById('verseContainer').style.background = '#00000099'
+                document.getElementById('textShade').style.background = '#00000099'
             }
         },
         bgImageCustomUrl: function (newVal) {
@@ -79,3 +81,13 @@ export default {
 }
 </script>
 
+<style>
+#textShade {
+    position: absolute;
+    border-radius: clamp(0.1rem, 2vw + 3vh, 4rem);
+    top: clamp(0.1rem, 1vw + 2vh, 2rem);
+    left: clamp(0.1rem, 1vw + 2vh, 2rem);
+    right: clamp(0.1rem, 1vw + 2vh, 2rem);
+    bottom: clamp(0.1rem, 5vw + 7vh, 5rem);
+}
+</style>

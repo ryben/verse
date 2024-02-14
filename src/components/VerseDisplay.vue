@@ -30,21 +30,34 @@ export default {
     })
   },
   computed: {
-    ...mapState(['verseDetails', 'verseFontSize', 'isAutosizeText']),
-    verseFont() {
-      if (this.isAutosizeText) {
-        return {
-          fontFamily: 'Helvetica'
-        }
-      } else {
-        return {
-          fontSize: this.verseFontSize + 'px',
-          fontFamily: 'Helvetica'
-        }
-      }
+    ...mapState(['verseDetails', 'verseFontSize']),
+  },
+  watch: {
+    verseFontSize() {
+      this.adjustVerseFontSize()
+    },
+    verseDetails() {
+      this.adjustVerseFontSize()
     }
   },
   methods: {
+    adjustVerseFontSize() {
+      let verseContent = this.$refs.verseContent
+      const length = this.verseDetails.content.length;
+
+      const minLength = 200, maxLength = 400;
+      const clampedLength = Math.min(Math.max(length, minLength), maxLength);
+      let ratio = (clampedLength - minLength) / (maxLength - minLength);
+
+      // Linearly interpolate values based on the ratio
+      const vw = 2 - 0.5 * ratio + this.verseFontSize; // Range from 2 to 1.5
+      const vh = 4 - 1.5 * ratio + this.verseFontSize; // Range from 4 to 2.5
+      const maxRem = 5 + 1 * ratio + this.verseFontSize; // Range from 5 to 6
+
+      verseContent.style.cssText = `
+      font-size: clamp(0.5rem, ${vw.toFixed(2)}vw + ${vh.toFixed(2)}vh, ${maxRem.toFixed(1)}rem);
+      `;
+    },
     showNextVerse: function (isNextVerse) {
       this.$store.dispatch('showNextVerse', isNextVerse)
     },
@@ -114,12 +127,11 @@ export default {
   color: white;
   text-align: center;
   margin-top: clamp(0.1rem, 1vw + 3vh, 10rem);
-  font-size: clamp(0.5rem, 1.5vw + 3.5vh, 6rem);
 }
 
-@media screen and (max-height: 280px) {
+@media screen and (max-height: 280px) and (min-width: 550px) {
   #verseTitleTranslationContainer {
-    margin-top: clamp(0.1rem, 2vw + 3vh, 2rem);
+    margin-top: clamp(0.1rem, 2vw + 3vh, 1rem);
     margin-left: clamp(0.1rem, 0.5vw + 1vh, 0.2rem);
   }
 

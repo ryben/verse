@@ -24,11 +24,11 @@ export const storageManager = {
     loadState: function () {
         return {
             'verseAddress': JSON.parse(localStorage.getItem(KEY_VERSE_ADDRESS)),
-            'verseFontSize': parseInt(localStorage.getItem(KEY_VERSE_FONT_SIZE)),
+            'verseFontSize': parseFloat(localStorage.getItem(KEY_VERSE_FONT_SIZE)),
             'isAddTextBg': localStorage.getItem(KEY_IS_ADD_TEXT_BG) == 'true',
             'bgCustomImgUrl': localStorage.getItem(KEY_BG_IMAGE_CUSTOM_URL),
             'selectedBg': localStorage.getItem(KEY_BG_IMAGE)
         }
     }
-    
+
 }
