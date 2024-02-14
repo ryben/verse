@@ -1,14 +1,9 @@
 <template>
   <div id="verseContainer" tabindex="0" @keydown="handleKeydown" v-on:copy="handleCopy">
     <div id="verseTitleTranslationContainer">
-      <div id="verseTitle">
-        {{ verseDetails.title.toUpperCase() }}
-      </div>
-      <div id="verseVersion">
-        {{ verseDetails.version.toUpperCase() }}
-      </div>
+      <VerseTitleAndVersion :verse-details="verseDetails" />
     </div>
-    <div id="verseContent" :style="verseFont">
+    <div id="verseContent" ref="verseContent" :style="verseFont">
       {{ verseDetails.content }}
     </div>
   </div>
@@ -17,11 +12,13 @@
 
 <script>
 
+import VerseTitleAndVersion from '@/components/VerseTitleAndVersion.vue'
 import { mapState } from 'vuex';
 
 export default {
   name: 'VerseDisplay',
   props: [],
+  components: { VerseTitleAndVersion },
   data: function () {
     return {
     }
@@ -109,26 +106,12 @@ export default {
   outline: none;
 }
 
-#verseTitle {
-  color: white;
-  font-size: 50px;
-}
-
-#verseVersion {
-  color: yellow;
-  font-style: oblique;
-  font-size: 35px;
-  margin-top: 10px;
-}
-
 #verseContent {
   color: white;
   text-align: center;
   font-size: 72px;
   margin-top: 50px;
 }
-
-
 
 @media screen and (min-width: 1201px),
 screen and (min-height: 700px) {
@@ -143,14 +126,6 @@ screen and (min-height: 700px) {
     font-size: 80px;
   }
 
-  #verseTitle {
-    font-size: 50px;
-  }
-
-  #verseVersion {
-    font-size: 35px;
-    margin-top: 10px;
-  }
 }
 
 @media screen and (max-width: 1200px),
@@ -164,15 +139,6 @@ screen and (max-height: 700px) {
 
   #verseContent {
     font-size: 45px;
-  }
-
-  #verseTitle {
-    font-size: 25px;
-  }
-
-  #verseVersion {
-    font-size: 25px;
-    margin-top: 10px;
   }
 }
 
@@ -188,15 +154,6 @@ screen and (max-height: 700px) {
     margin-top: 20px;
     font-size: 30px;
   }
-
-  #verseTitle {
-    font-size: 25px;
-  }
-
-  #verseVersion {
-    font-size: 13px;
-    margin-top: 5px;
-  }
 }
 
 @media screen and (max-height: 400px) {
@@ -207,20 +164,6 @@ screen and (max-height: 700px) {
     padding-right: 5px;
   }
 
-  #verseTitleTranslationContainer {
-    font-size: 25px;
-    margin-left: 20px;
-    min-width: 120px;
-  }
-
-  #verseTitle {
-    font-size: 18px;
-  }
-
-  #verseVersion {
-    font-size: 13px;
-    margin-top: 5px;
-  }
 
   #verseContent {
     margin-top: 20px;
@@ -239,21 +182,6 @@ screen and (max-height: 700px) {
     display: flex;
   }
 
-  #verseTitleTranslationContainer {
-    font-size: 25px;
-    text-align: center;
-    margin-left: 10px;
-    min-width: 100px;
-  }
-
-  #verseTitle {
-    font-size: 13px;
-  }
-
-  #verseVersion {
-    font-size: 10px;
-    margin-top: 5px;
-  }
 
   #verseContent {
     margin-top: 0px;
@@ -276,13 +204,5 @@ screen and (max-height: 700px) {
     font-size: 20px;
   }
 
-  #verseTitle {
-    font-size: 17px;
-  }
-
-  #verseVersion {
-    font-size: 13px;
-    margin-top: 5px;
-  }
 }
 </style>

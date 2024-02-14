@@ -25,7 +25,6 @@ class BibleService {
     static instance = null
 
     currentVerseAddress = {}
-    currentVerseAddressValid = false
     defaultBibleVersionKey = 'adb'
 
     bible = { // here's a sample data for reference
@@ -136,7 +135,7 @@ class BibleService {
                     // do nothing
                 }
             }
-            throw `Book not found: ${bookName}` // TODO: Add hint for possible matches
+            throw `Book not found: ${bookName}` // TODO: Add hint for possible matches, or apply if has match close enough
 
         }
     }
@@ -189,7 +188,6 @@ class BibleService {
         // fetch and Return verse info
         let verseInfo = this.getVerseInfo(verseAddress)
         this.currentVerseAddress = verseAddress // take note of the validated verse address
-        this.currentVerseAddressValid = true
 
         return verseInfo
     }
@@ -203,31 +201,35 @@ class BibleService {
         let bibleVersion = this.getBibleVersion(verseAddress.version)
         let bookContent = bibleVersion.content[verseAddress.book]
 
+
         // MAX_VERSE_CHAPTER_INDICATOR is set as value of chapter/verse when next/previous button is tapped and bounds are reached
         if (verseAddress.chapter == MAX_VERSE_CHAPTER_INDICATOR) {
             verseAddress.chapter = Object.keys(bookContent).length
         }
 
         let chapterContent = bookContent[verseAddress.chapter]
+        if (utils.isEmpty(chapterContent)) {
+            throw new Error('Chapter not found: ' + verseAddress.chapter)
+        }
+
         if (verseAddress.verse == MAX_VERSE_CHAPTER_INDICATOR) {
             verseAddress.verse = Object.keys(chapterContent).length
         }
 
+
         let verseContent = chapterContent[verseAddress.verse]
-
-        if (verseContent) { // verse address is validated
-            let verseInfo = {
-                'title': bibleVersion.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse,
-                'content': verseContent,
-                'version': bibleVersion.name
-            }
-            return verseInfo
-        } else {
-            this.currentVerseAddressValid = false
-            throw new Error('Verse not found')
+        if (utils.isEmpty(verseContent)) {
+            throw new Error('Verse not found: ' + verseAddress.verse)
         }
-    }
 
+        // verse address is validated
+        let verseInfo = {
+            'title': bibleVersion.bookNames[verseAddress.book - 1] + ' ' + verseAddress.chapter + ':' + verseAddress.verse,
+            'content': verseContent,
+            'version': bibleVersion.name
+        }
+        return verseInfo
+    }
     getNextVerseAddress(isNextVerse) {
         let version = this.currentVerseAddress.version
         let book = this.currentVerseAddress.book

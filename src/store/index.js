@@ -80,6 +80,10 @@ export default new Vuex.Store({
                 dispatch('updateErrorDisplay', error)
             }
         },
+        async verseEnteredNoVersion({ getters, dispatch }, verseInput) {
+            let verseAddress = getters.verseAddress
+            dispatch('verseEntered', { verseInput: verseInput, currentVersion: verseAddress.version })
+        },
         async versionChanged({ commit, dispatch }, newVersion) {
             let verseAddress = BibleService.getDiffVersionVerseAddress(newVersion)
             commit('setCurrentVersion', newVersion)
@@ -110,6 +114,7 @@ export default new Vuex.Store({
             storageManager.saveFontSizeToLocalStorage(newFontSize)
         },
         autoSizeText({ commit }, isAutosizeText) {
+            // TODO: Save to storage, apply on app load, but don't apply if listened to storage events
             commit('setIsAutosizeText', isAutosizeText)
         },
         addTextBg({ commit }, isAddTextBg) {
@@ -121,13 +126,12 @@ export default new Vuex.Store({
             commit('setSelectedBg', selectedBg)
         },
         setBgImageCustomUrl({ commit }, bgImageCustomUrl) {
-            // storageManager.saveBgImageCustomUrlToLocalStorage(bgImageCustomUrl)
             commit('setBgImageCustomUrl', bgImageCustomUrl)
         },
         saveBgImageCustomUrl(context, bgImageCustomUrl) {
             storageManager.saveBgImageCustomUrlToLocalStorage(bgImageCustomUrl)
         },
-        loadStateFromStorage({ commit, dispatch }) {
+        loadStateFromStorage({ commit, dispatch }) { // TODO: Merge with loadBgFromStorage
             let savedState = storageManager.loadState()
 
             dispatch('fetchVerseDetails', savedState.verseAddress)
@@ -149,5 +153,6 @@ export default new Vuex.Store({
         verseFontSize: state => state.verseFontSize,
         versions: state => state.versions,
         currentVersion: state => state.currentVersion,
+        verseAddress: state => state.verseAddress,
     },
 })
