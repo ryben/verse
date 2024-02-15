@@ -59,7 +59,7 @@ export default {
       `;
     },
     showNextVerse: function (isNextVerse) {
-      this.$store.dispatch('showNextVerse', isNextVerse)
+      this.$store.dispatch('showNextVerse', { isNextVerse: isNextVerse })
     },
     increaseFontSize(isIncrease) {
       this.$store.dispatch('increaseFontSize', isIncrease)

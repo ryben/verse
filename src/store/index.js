@@ -95,15 +95,15 @@ export default new Vuex.Store({
             dispatch('verseEntered', { verseInput: verseInput, currentVersion: verseAddress.version })
         },
         async versionChanged({ commit, dispatch }, { version, isSync = true }) {
-            if (isSync == false) {
-                commit('setSyncVerse', false)
-            }
+            commit('setSyncVerse', isSync)
 
             let verseAddress = BibleService.getDiffVersionVerseAddress(version)
             commit('setCurrentVersion', version)
             dispatch('fetchVerseDetails', verseAddress)
         },
-        async showNextVerse({ dispatch }, isNextVerse) {
+        async showNextVerse({ commit, dispatch }, { isNextVerse, isSync = true }) {
+            commit('setSyncVerse', isSync)
+
             let nextVerseAddress = await BibleService.getNextVerseAddress(isNextVerse)
             dispatch('fetchVerseDetails', nextVerseAddress)
         },

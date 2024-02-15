@@ -1,5 +1,16 @@
 export const uiMixin = {
     methods: {
+        makeOtherRefEditable(hoverRef, ref) {
+            this.frameText(ref, false)
+            hoverRef.addEventListener('mouseover', () => {
+                this.frameText(ref)
+            })
+            hoverRef.addEventListener('mouseout', () => {
+                if (!this.isTextEditable(ref)) {
+                    this.frameText(ref, false)
+                }
+            })
+        },
         makeEditable(ref) {
             this.frameText(ref, false)
             ref.addEventListener('mouseover', () => {
@@ -58,12 +69,12 @@ export const uiMixin = {
         frameText(elementRef, isEditable = true) {
             if (isEditable) {
                 elementRef.style.cssText = `
-                outline: 3px solid rgba(255, 255, 255, 0.7);
+                outline: 2px solid rgba(255, 255, 255, 0.7);
                 outline-offset: 3px 6px;
                 border-radius: 10px;
                 background-color: rgba(0, 0, 0, 0.3);
-                padding: 5px 16px;
-                margin: clamp(0.1rem, 0.3vw + 0.6vh, 0.4rem) -16px;
+                padding: 5px 20px;
+                margin: clamp(0.1rem, 0.3vw + 0.6vh, 0.4rem) -20px;
               `
             } else {
                 elementRef.style.cssText = ''

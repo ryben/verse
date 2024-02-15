@@ -1,8 +1,12 @@
 <template>
   <div id="verseTitleTranslationContainer">
-    <span id="verseTitle" ref="verseTitle" v-on:click="onClickTitle" @blur="onBlurTitle" @keydown.enter="onEnterTitle"
-      @keydown="handleKeyDown">
-      {{ verseDetails.title }}
+    <span class="verse-container" ref="verseTitleContainer">
+      <span class="arrow left unselectable" v-on:click="onClickLeft()">◄</span>
+      <span class="arrow right unselectable" v-on:click="onClickRight()">►</span>
+      <span id="verseTitle" ref="verseTitle" v-on:click="onClickTitle" @blur="onBlurTitle" @keydown.enter="onEnterTitle"
+        @keydown="handleKeyDown">
+        {{ verseDetails.title }}
+      </span>
     </span>
     <div></div>
     <span id="verseVersion" ref="verseVersion" v-on:click="onClickVersion" @blur="onBlurVersion" @keydown="handleKeyDown">
@@ -36,7 +40,7 @@ export default {
     }
   },
   mounted() {
-    this.makeEditable(this.$refs.verseTitle)
+    this.makeOtherRefEditable(this.$refs.verseTitleContainer, this.$refs.verseTitle)
     this.makeEditable(this.$refs.verseVersion)
   },
   computed: {
@@ -92,7 +96,6 @@ export default {
         }
       });
     },
-
     onBlurTitle() {
       this.setEditMode(this.$refs.verseTitle, false)
       this.$refs.verseTitle.innerText = this.verseDetails.title
@@ -109,6 +112,12 @@ export default {
       event.preventDefault()
       this.$store.dispatch('verseEnteredNoVersion', event.target.innerText)
       this.setEditMode(this.$refs.verseTitle, false)
+    },
+    onClickLeft() {
+      this.$store.dispatch('showNextVerse', { isNextVerse: false, isSync: false })
+    },
+    onClickRight() {
+      this.$store.dispatch('showNextVerse', { isNextVerse: true, isSync: false })
     },
     handleKeyDown(event) {
       switch (event.key) {
@@ -136,6 +145,63 @@ export default {
   color: white;
   text-transform: uppercase;
   font-size: clamp(0.8rem, 1.7vw + 3.0vh, 3rem);
+}
+
+
+
+.verse-container {
+  position: relative;
+  display: inline-block;
+  /* Or 'block' depending on your layout */
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.2);
+  font-size: clamp(0.8rem, 0.7vw + 2.0vh, 1.5rem);
+  border-radius: 15px;
+  padding: 12px 16px;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.arrow:active {
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Darker background on click */
+}
+
+.verse-container:hover .arrow {
+  opacity: 1;
+}
+
+.left {
+  left: 0;
+  /* Aligns to the left edge of the container's padding */
+  transform: translateX(-150%) translateY(-50%);
+  /* Moves it fully outside and centers vertically */
+
+}
+
+.right {
+  right: 0;
+  /* Aligns to the right edge of the container's padding */
+  transform: translateX(150%) translateY(-50%);
+  /* Moves it fully outside and centers vertically */
+
+}
+
+.unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 #verseVersion {

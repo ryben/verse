@@ -143,7 +143,7 @@ export default {
             verseInput.select()
         },
         showNextVerse(isNextVerse) {
-            this.$store.dispatch('showNextVerse', isNextVerse)
+            this.$store.dispatch('showNextVerse', { isNextVerse: isNextVerse })
         },
         showCustomUrlInput(isShow) {
             const bgImgCustomUrlInput = document.getElementById('bgImgCustomUrlInput')
