@@ -167,6 +167,17 @@ class BibleService {
             throw 'Book not found'
         }
     }
+    async isValidVerseAddress(verseAddress) {
+        if (utils.isEmptyObject(verseAddress)) {
+            return false
+        }
+        try {
+            await this.fetchVerse(verseAddress)
+            return true
+        } catch (error) {
+            return false
+        }
+    }
     async fetchVerse(verseAddress) {
         let bibleVersion = this.getBibleVersion(verseAddress.version)
 
@@ -294,7 +305,7 @@ class BibleService {
             return response.data;
         } catch (error) {
             console.error('There was an error fetching a resource:', error);
-            // TODO: Error handling
+            throw new Error("An error occurred")
         }
     }
 

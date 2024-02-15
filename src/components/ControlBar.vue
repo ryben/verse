@@ -45,8 +45,7 @@ export default {
     data: function () {
         return {
             verseAddressInput: '',
-            controlVersion: '',
-            backgrounds: {
+            backgrounds: { // TODO: Move these to Vuex store and apply defaulting logic there to avoid bugs
                 'Blue BG': defaultBg,
                 'Brown BG': 'brown.jpg',
                 'Orange': 'orange.jpg',
@@ -93,12 +92,17 @@ export default {
             set(value) {
                 this.$store.dispatch('setIsAddTextBg', value)
             }
-        }
+        },
+        controlVersion: {
+            get() {
+                return this.$store.state.controlVersion
+            },
+            set(value) {
+                this.$store.dispatch('controlVersionChanged', value)
+            }
+        },
     },
     watch: {
-        verseAddress: function (newVal) {
-            this.controlVersion = newVal.version
-        },
         controlVersion: function (newVal, oldVal) {
             if (utils.isNotEmpty(oldVal)) {
                 this.$store.dispatch('versionChanged', { version: newVal })
@@ -126,12 +130,12 @@ export default {
     },
     methods: {
         onClickGo() {
-            this.$store.dispatch('verseEntered', { verseInput: this.verseAddressInput, currentVersion: this.controlVersion })
+            this.$store.dispatch('verseEntered', { verseInput: this.verseAddressInput, version: this.controlVersion })
         },
         onPasteVerseAddress(event) {
             let pasted = event.clipboardData.getData('text')
             if (pasted.match(BibleService.verseAddressRegex)) {
-                this.$store.dispatch('verseEntered', { verseInput: pasted, currentVersion: this.controlVersion })
+                this.$store.dispatch('verseEntered', { verseInput: pasted, version: this.controlVersion })
             }
         },
         increaseFontSize(isIncrease) {

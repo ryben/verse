@@ -18,6 +18,9 @@ export const utils = {
 
         return str1.substring(0, str2.length) == str2 || str2.substring(0, str1.length) == str1
     },
+    cloneObj(obj) {
+        return { ...obj };
+    },
     cloneObjArray(objArray) {
         return objArray.map(obj => ({ ...obj }))
     },
