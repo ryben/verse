@@ -165,6 +165,7 @@ export default new Vuex.Store({
             if (isLoadFromInit) {
                 // Always use default font size on init
                 commit('setVerseFontSize', 0.0)
+                storageManager.saveFontSizeToLocalStorage(0.0)
             } else {
                 commit('setVerseFontSize', parseFloat(savedState.verseFontSize))
             }
