@@ -7,8 +7,6 @@ export NODE_OPTIONS=--openssl-legacy-provider
 # build
 npm run build
 
-# cp -r verses dist
-
 # navigate into the build output directory
 cd dist
 # if you are deploying to a custom domain

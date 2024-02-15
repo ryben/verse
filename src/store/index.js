@@ -70,7 +70,7 @@ export default new Vuex.Store({
                 let versionList = BibleService.bible.versionList
                 commit('setVersions', versionList)
 
-                dispatch('loadStateFromStorage');
+                dispatch('loadStateFromStorage', true);
             })
 
         },
@@ -147,21 +147,27 @@ export default new Vuex.Store({
         saveBgImageCustomUrl(context, bgImageCustomUrl) {
             storageManager.saveBgImageCustomUrlToLocalStorage(bgImageCustomUrl)
         },
-        async loadStateFromStorage({ commit, dispatch }) { // TODO: Merge with loadBgFromStorage
+        async loadStateFromStorage({ commit, dispatch }, isLoadFromInit = false) { // TODO: Merge with loadBgFromStorage
             let savedState = storageManager.loadState()
             let verseAddress = savedState.verseAddress
 
             let isVerseAddressValid = await BibleService.isValidVerseAddress(savedState.verseAddress)
+
             if (isVerseAddressValid) {
                 dispatch('fetchVerseDetails', verseAddress)
                 commit('setControlVersion', verseAddress.version)
             } else {
-                // Enter a default verse and version
+                // Default verse and version
                 dispatch('verseEntered', { verseInput: "Gen 1:1", version: this.getters.versions[0].key })
                 commit('setControlVersion', this.getters.versions[0].key)
             }
 
-            commit('setVerseFontSize', parseFloat(savedState.verseFontSize))
+            if (isLoadFromInit) {
+                // Always use default font size on init
+                commit('setVerseFontSize', 0.0)
+            } else {
+                commit('setVerseFontSize', parseFloat(savedState.verseFontSize))
+            }
         },
         loadBgFromStorage({ commit }) {
             let savedState = storageManager.loadState()

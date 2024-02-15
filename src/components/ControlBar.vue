@@ -108,9 +108,6 @@ export default {
                 this.$store.dispatch('versionChanged', { version: newVal })
             }
         },
-        isAddTextBg: function (newVal) {
-            this.$store.dispatch('addTextBg', newVal)
-        },
         selectedBg: function (newVal) {
             this.showCustomUrlInput(newVal == BG_CUSTOM_URL)
             if (utils.isEmpty(newVal)) {
