@@ -37,8 +37,6 @@ import { utils } from '@/utils/utils.js'
 import { backgroundService } from '../services/BackgroundService';
 
 const BG_CUSTOM_URL = backgroundService.BG_CUSTOM_URL
-const defaultVersionIndex = 0
-const defaultVerse = 'Gen 1:1'
 const defaultBg = 'blue.jpg'
 
 export default {
@@ -64,8 +62,6 @@ export default {
         EventBus.$off('focus-input', this.focusInput);
     },
     mounted: function () {
-        this.$store.dispatch('loadBgFromStorage')
-        this.verseAddressInput = defaultVerse
         this.showCustomUrlInput(this.selectedBg == BG_CUSTOM_URL)
 
         if (this.selectedBg == BG_CUSTOM_URL && utils.isEmpty(this.bgImageCustomUrl)) {
@@ -95,10 +91,9 @@ export default {
                 return this.$store.state.isAddTextBg
             },
             set(value) {
-                this.$store.dispatch('addTextBg', value)
+                this.$store.dispatch('setIsAddTextBg', value)
             }
         }
-
     },
     watch: {
         verseAddress: function (newVal) {
@@ -106,12 +101,8 @@ export default {
         },
         controlVersion: function (newVal, oldVal) {
             if (utils.isNotEmpty(oldVal)) {
-                this.$store.dispatch('versionChanged', newVal)
+                this.$store.dispatch('versionChanged', { version: newVal })
             }
-        },
-        versions: function () {
-            this.controlVersion = this.versions[defaultVersionIndex].key
-            this.$store.dispatch('verseEntered', { verseInput: defaultVerse, currentVersion: this.controlVersion })
         },
         isAddTextBg: function (newVal) {
             this.$store.dispatch('addTextBg', newVal)

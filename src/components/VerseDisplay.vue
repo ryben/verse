@@ -129,7 +129,7 @@ export default {
   margin-top: clamp(0.1rem, 1vw + 3vh, 10rem);
 }
 
-@media screen and (max-height: 280px) and (min-width: 550px) {
+@media screen and (max-height: 280px) and (min-width: 700px) {
   #verseTitleTranslationContainer {
     margin-top: clamp(0.1rem, 2vw + 3vh, 1rem);
     margin-left: clamp(0.1rem, 0.5vw + 1vh, 0.2rem);

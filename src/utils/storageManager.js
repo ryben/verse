@@ -1,3 +1,6 @@
+import { utils } from '@/utils/utils.js'
+
+
 const KEY_VERSE_ADDRESS = "KEY_VERSE_ADDRESS"
 const KEY_VERSE_FONT_SIZE = "KEY_VERSE_FONT_SIZE"
 const KEY_IS_ADD_TEXT_BG = "KEY_IS_ADD_TEXT_BG"
@@ -23,8 +26,8 @@ export const storageManager = {
     },
     loadState: function () {
         return {
-            'verseAddress': JSON.parse(localStorage.getItem(KEY_VERSE_ADDRESS)),
-            'verseFontSize': parseFloat(localStorage.getItem(KEY_VERSE_FONT_SIZE)),
+            'verseAddress': utils.parseJson(localStorage.getItem(KEY_VERSE_ADDRESS)),
+            'verseFontSize': parseFloat(localStorage.getItem(KEY_VERSE_FONT_SIZE)) || 0.0,
             'isAddTextBg': localStorage.getItem(KEY_IS_ADD_TEXT_BG) == 'true',
             'bgCustomImgUrl': localStorage.getItem(KEY_BG_IMAGE_CUSTOM_URL),
             'selectedBg': localStorage.getItem(KEY_BG_IMAGE)

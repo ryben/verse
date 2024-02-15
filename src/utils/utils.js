@@ -10,7 +10,7 @@ export const utils = {
         return !this.isEmpty(someVar)
     },
     isEmptyObject: function (obj) {
-        return Object.keys(obj).length === 0 && obj.constructor === Object;
+        return obj == null || Object.keys(obj).length === 0 && obj.constructor === Object
     },
     isSubstringOfOther(str1, str2) {
         str1 = str1.toLowerCase()
@@ -19,6 +19,13 @@ export const utils = {
         return str1.substring(0, str2.length) == str2 || str2.substring(0, str1.length) == str1
     },
     cloneObjArray(objArray) {
-        return objArray.map(obj => ({ ...obj })) 
+        return objArray.map(obj => ({ ...obj }))
+    },
+    parseJson(str) {
+        try {
+            return JSON.parse(str)
+        } catch (error) {
+            return {}
+        }
     }
 }

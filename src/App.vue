@@ -29,14 +29,13 @@ export default {
       dispatch('loadStateFromStorage');
       dispatch('loadBgFromStorage');
     }
+    this.$store.dispatch('loadBgFromStorage')
 
     window.addEventListener('storage', handleStorageEvent);
 
     this.$once('hook:beforeDestroy', () => {
       window.removeEventListener('storage', handleStorageEvent);
     })
-
-    // TODO: Loading of bible versions should be done here
 
     // TODO: Load Params from URL for auto size, should affect url
   },

@@ -3,6 +3,8 @@ import Vuex from 'vuex';
 
 import BibleService from '@/services/BibleService.js'
 import { storageManager } from '@/utils/storageManager.js'
+import { utils } from '@/utils/utils.js'
+
 
 // Tell Vue to use Vuex
 Vue.use(Vuex);
@@ -24,7 +26,9 @@ export default new Vuex.Store({
         isAddTextBg: false,
         selectedBg: '',
         bgImageCustomUrl: null,
-        errorDisplay: ''
+        errorDisplay: '',
+        syncVerse: true,
+        syncVersion: true,
     },
     mutations: {
         setVerseDetails(state, details) {
@@ -54,13 +58,22 @@ export default new Vuex.Store({
         setErrorDisplay(state, errorDisplay) {
             state.errorDisplay = errorDisplay
         },
+        setSyncVerse(state, syncVerse) {
+            state.syncVerse = syncVerse
+        },
+        setSyncVersion(state, syncVersion) {
+            state.syncVersion = syncVersion
+        },
     },
     actions: {
-        initStore({ commit }) {
+        initStore({ commit, dispatch }) {
             BibleService.init().then(() => {
                 let versionList = BibleService.bible.versionList
                 commit('setVersions', versionList)
+
+                dispatch('loadStateFromStorage');
             })
+
         },
         loadBibleVersions({ commit }) {
             BibleService.init().then(() => {
@@ -76,20 +89,25 @@ export default new Vuex.Store({
                 dispatch('updateErrorDisplay', error)
             }
         },
-        async verseEnteredNoVersion({ getters, dispatch }, verseInput) {
+        async verseEnteredNoVersion({ commit, getters, dispatch }, verseInput) {
             let verseAddress = getters.verseAddress
+            commit('setSyncVerse', false)
             dispatch('verseEntered', { verseInput: verseInput, currentVersion: verseAddress.version })
         },
-        async versionChanged({ commit, dispatch }, newVersion) {
-            let verseAddress = BibleService.getDiffVersionVerseAddress(newVersion)
-            commit('setCurrentVersion', newVersion)
+        async versionChanged({ commit, dispatch }, { version, isSync = true }) {
+            if (isSync == false) {
+                commit('setSyncVerse', false)
+            }
+
+            let verseAddress = BibleService.getDiffVersionVerseAddress(version)
+            commit('setCurrentVersion', version)
             dispatch('fetchVerseDetails', verseAddress)
         },
         async showNextVerse({ dispatch }, isNextVerse) {
             let nextVerseAddress = await BibleService.getNextVerseAddress(isNextVerse)
             dispatch('fetchVerseDetails', nextVerseAddress)
         },
-        async fetchVerseDetails({ commit, dispatch }, verseAddress) {
+        async fetchVerseDetails({ commit, dispatch, getters }, verseAddress) {
             let verseDetails
             try {
                 verseDetails = await BibleService.fetchVerse(verseAddress)
@@ -100,8 +118,10 @@ export default new Vuex.Store({
             } catch (error) {
                 dispatch('updateErrorDisplay', error.message)
             }
-
-            storageManager.saveVerseToLocalStorage(verseAddress)
+            if (getters.syncVerse) {
+                storageManager.saveVerseToLocalStorage(verseAddress)
+            }
+            commit('setSyncVerse', true)
         },
         increaseFontSize({ commit, getters }, isIncrease) {
             let newFontSize = getters.verseFontSize + 0.2 * (isIncrease ? 1 : -1)
@@ -109,7 +129,7 @@ export default new Vuex.Store({
             commit('setVerseFontSize', newFontSize)
             storageManager.saveFontSizeToLocalStorage(newFontSize)
         },
-        addTextBg({ commit }, isAddTextBg) {
+        setIsAddTextBg({ commit }, isAddTextBg) {
             storageManager.saveTextBgToLocalStorage(isAddTextBg)
             commit('setIsAddTextBg', isAddTextBg)
         },
@@ -125,8 +145,15 @@ export default new Vuex.Store({
         },
         loadStateFromStorage({ commit, dispatch }) { // TODO: Merge with loadBgFromStorage
             let savedState = storageManager.loadState()
+            let verseAddress = savedState.verseAddress
 
-            dispatch('fetchVerseDetails', savedState.verseAddress)
+            if (utils.isEmptyObject(verseAddress)) {
+                dispatch('verseEntered', { verseInput: "Gen 1:1", currentVersion: this.getters.versions[0].key })
+            } else {
+                dispatch('fetchVerseDetails', verseAddress)
+            }
+
+
             commit('setVerseFontSize', parseFloat(savedState.verseFontSize))
         },
         loadBgFromStorage({ commit }) {
@@ -146,5 +173,9 @@ export default new Vuex.Store({
         versions: state => state.versions,
         currentVersion: state => state.currentVersion,
         verseAddress: state => state.verseAddress,
+        isAddTextBg: state => state.isAddTextBg,
+        selectedBg: state => state.selectedBg,
+        syncVerse: state => state.syncVerse,
+        syncVersion: state => state.syncVersion,
     },
 })

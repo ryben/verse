@@ -5,16 +5,14 @@
       {{ verseDetails.title }}
     </span>
     <div></div>
-    <span id="verseVersion" ref="verseVersion" v-on:click="onClickVersion" @blur="onBlurVersion"
-      @keydown.enter="onEnterVersion" @keydown="handleKeyDown">
+    <span id="verseVersion" ref="verseVersion" v-on:click="onClickVersion" @blur="onBlurVersion" @keydown="handleKeyDown">
       {{ verseDetails.version }}
     </span>
     <div id="versionsDropdown" ref="versionsDropdown" v-if="isDropdownVisible" class="dropdown-menu"
       @mouseenter="onHoverDropdown" @mouseleave="onLeaveDropdown">
       <ul>
-        <li v-for="option in versionOptions" :key="option" @click="selectVersion(option)"
-          :class="{ 'selected': verseDetails.version === option }">
-          {{ option }}
+        <li v-for="version in versions" :value="version.key" :key="version.key" @click="onSelectVersion(version)">
+          {{ version.name }}
         </li>
       </ul>
     </div>
@@ -23,30 +21,26 @@
 
 
 <script>
-
+import { mapState } from 'vuex';
+import { uiMixin } from "@/mixins/uiMixin.js"
 
 export default {
   name: 'VerseTitleAndVersion',
+  mixins: [uiMixin],
   props: ['verseDetails'],
   data: function () {
     return {
-      isEditingTitle: false,
-      isEditingVersion: false,
+      selectedVersion: "",
       isSelectingVersion: false,
       isDropdownVisible: false,
-      versionOptions: [
-        'Ang Dating Biblia',
-        'King James Version',
-        'New King James Version'
-      ]
     }
   },
   mounted() {
-    this.applyEditable(this.$refs.verseTitle)
-    this.applyEditable(this.$refs.verseVersion)
+    this.makeEditable(this.$refs.verseTitle)
+    this.makeEditable(this.$refs.verseVersion)
   },
   computed: {
-
+    ...mapState(['versions']),
   },
   watch: {
     verseDetails(value) {
@@ -61,48 +55,23 @@ export default {
     onLeaveDropdown() {
       this.isSelectingVersion = false
     },
-    selectVersion(option) {
+    onSelectVersion(version) {
       this.isDropdownVisible = false;
       this.isSelectingVersion = false
-      this.makeIsEditing(this.$refs.verseVersion, false)
 
-      console.log("Clicked: " + option)
+      this.$store.dispatch('versionChanged', { version: version.key, isSync: false })
     },
-    applyEditable(ref) {
-      this.makeLookEditable(ref, false)
-      ref.addEventListener('mouseover', () => {
-        this.makeLookEditable(ref)
-      })
-      ref.addEventListener('mouseout', () => {
-        if (!this.isEditing(ref)) {
-          this.makeLookEditable(ref, false)
-        }
-      })
+    onClickTitle() {
+      this.setEditMode(this.$refs.verseTitle, true)
     },
-    isEditing(ref) {
-      if (ref == this.$refs.verseTitle) {
-        return this.isEditingTitle
-      } else if (ref == this.$refs.verseVersion) {
-        return this.isEditingVersion
-      }
-    },
-    makeIsEditing(ref, isEditing = true) {
-      if (ref == this.$refs.verseTitle) {
-        this.isEditingTitle = isEditing
-      } else if (ref == this.$refs.verseVersion) {
-        if (this.isSelectingVersion == false) {
-          this.isEditingVersion = isEditing
-          this.isDropdownVisible = isEditing
-        }
-      }
-    },
-    onClickTitle(event) {
-      this.setEditMode(event.target, true)
-    },
-    onClickVersion(event) {
-      this.setEditMode(event.target, true)
+    onClickVersion() {
+      let verseVersion = this.$refs.verseVersion
+      verseVersion.setAttribute('tabindex', 0) // make sure it's focusable
+      verseVersion.focus()
+      this.isDropdownVisible = true
 
       this.$nextTick(() => {
+        // Style the custom dropdown
         const verseVersion = this.$refs.verseVersion;
         const versionsDropdown = this.$refs.versionsDropdown;
 
@@ -124,70 +93,22 @@ export default {
       });
     },
 
-    onBlurTitle(event) {
-      this.setEditMode(event.target, false)
+    onBlurTitle() {
+      this.setEditMode(this.$refs.verseTitle, false)
       this.$refs.verseTitle.innerText = this.verseDetails.title
     },
-    onBlurVersion(event) {
-      this.setEditMode(event.target, false)
+    onBlurVersion() {
+      this.setEditMode(this.$refs.verseVersion, false)
+      if (!this.isSelectingVersion) {
+        // prevent hiding the dropdown before it gets clicked
+        this.isDropdownVisible = false
+      }
       this.$refs.verseVersion.innerText = this.verseDetails.version
-    },
-    setEditMode(target, isEditMode) {
-      let title = this.$refs.verseTitle
-      let version = this.$refs.verseVersion
-
-      let targetRef = target == title ? title : version
-
-      if (isEditMode) {
-        targetRef.setAttribute('contenteditable', 'true');
-        targetRef.focus(); // Optional: focus the element for immediate editing
-
-        if (!this.isEditing(targetRef)) {
-          this.makeEditable(targetRef)
-          this.makeIsEditing(targetRef)
-        }
-      } else {
-        targetRef.setAttribute('contenteditable', 'false');
-        this.makeLookEditable(targetRef, false)
-        this.makeIsEditing(targetRef, false)
-      }
-    },
-    makeEditable(elementRef) {
-      // Wait for the next tick to ensure the content is editable and focused
-      this.$nextTick(() => {
-        const range = document.createRange();
-        range.selectNodeContents(elementRef);
-
-        const selection = window.getSelection();
-        selection.removeAllRanges(); // Clear any existing selections
-        selection.addRange(range); // Select all text within the element
-      });
-
-      this.makeLookEditable(elementRef)
-    },
-    makeLookEditable(elementRef, isEditable = true) {
-      if (isEditable) {
-        elementRef.style.cssText = `
-          outline: 3px solid rgba(255, 255, 255, 0.7);
-          outline-offset: 3px 6px;
-          border-radius: 10px;
-          background-color: rgba(0, 0, 0, 0.3);
-          padding: 5px 16px;
-          margin: clamp(0.1rem, 0.3vw + 0.6vh, 0.4rem) -16px;
-        `
-      } else {
-        elementRef.style.cssText = ''
-      }
     },
     onEnterTitle(event) {
       event.preventDefault()
       this.$store.dispatch('verseEnteredNoVersion', event.target.innerText)
-      this.setEditMode(event.target, false)
-    },
-    onEnterVersion(event) {
-      event.preventDefault()
-      this.setEditMode(event.target, false)
-      // this.$store.dispatch('verseEnteredNoVersion', event.target.innerHTML)
+      this.setEditMode(this.$refs.verseTitle, false)
     },
     handleKeyDown(event) {
       switch (event.key) {
@@ -215,7 +136,6 @@ export default {
   color: white;
   text-transform: uppercase;
   font-size: clamp(0.8rem, 1.7vw + 3.0vh, 3rem);
-  font-weight: ;
 }
 
 #verseVersion {
@@ -226,6 +146,7 @@ export default {
   margin-bottom: 10px;
   margin-top: clamp(0.2rem, 0.6vw + 1.2vh, 0.8rem);
   font-size: clamp(0.8rem, 1.0vw + 2vh, 2rem);
+  cursor: pointer;
 }
 
 #versionsDropdown {
@@ -240,9 +161,9 @@ export default {
   padding: 12px;
   margin: 0;
   background: #f0f0f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(56, 56, 56, 0.1);
   border-radius: 16px;
-  background-color: lightgray;
+  background-color: rgb(240, 240, 240);
   color: black;
 }
 
