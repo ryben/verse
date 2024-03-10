@@ -84,15 +84,14 @@ export default {
           const style = window.getComputedStyle(verseVersion);
           const marginLeft = style.marginLeft;
           const fontFamily = style.fontFamily;
-          const fontStyle = style.fontStyle;
           let fontSize = parseFloat(style.fontSize);
-          fontSize = fontSize * 0.7; // Adjust the scaling factor as needed
+          fontSize = fontSize * 0.85; // Adjust the scaling factor as needed
 
           versionsDropdown.style.width = `${width}px`;
           versionsDropdown.style.marginLeft = marginLeft;
           versionsDropdown.style.fontSize = `${fontSize}px`; // Apply adjusted fontSize
           versionsDropdown.style.fontFamily = fontFamily; // Apply fontFamily
-          versionsDropdown.style.fontStyle = fontStyle;
+          versionsDropdown.style.fontStyle = "normal";
         }
       });
     },
@@ -144,7 +143,7 @@ export default {
 #verseTitle {
   color: white;
   text-transform: uppercase;
-  font-size: clamp(0.8rem, 1.7vw + 3.0vh, 3rem);
+  font-size: clamp(0.8rem, 1.7vw + 3.5vh, 5rem);
 }
 
 
@@ -211,7 +210,7 @@ export default {
   text-transform: uppercase;
   margin-bottom: 10px;
   margin-top: clamp(0.2rem, 0.6vw + 1.2vh, 0.8rem);
-  font-size: clamp(0.8rem, 1.0vw + 2vh, 2rem);
+  font-size: clamp(0.8rem, 1.4vw + 2.4vh, 4rem);
   cursor: pointer;
 }
 

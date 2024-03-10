@@ -118,7 +118,7 @@ export default {
   right: 10px;
   outline: none;
 
-  padding-top: clamp(0.1rem, 2vw + 5vh, 4.4rem);
+  padding-top: clamp(0.1rem, 2vw + 5vh, 6rem);
   padding-left: clamp(0.1rem, 6vw + 2vh, 7rem);
   padding-right: clamp(0.1rem, 5vw, 20rem);
 }
@@ -126,7 +126,7 @@ export default {
 #verseContent {
   color: white;
   text-align: center;
-  margin-top: clamp(0.1rem, 1vw + 3vh, 10rem);
+  margin-top: clamp(0.1rem, 1vw + 1vh, 2rem);
 }
 
 @media screen and (max-height: 280px) and (min-width: 700px) {
