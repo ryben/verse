@@ -146,11 +146,11 @@ export default {
             if (isVisible) {
                 controls.classList.remove('controls-hidden');
                 toggleButton.style.transform = 'rotateY(0deg)';
-                toggleButton.style.color = 'rgba(255, 255, 255, 0.7)';
+                toggleButton.style.color = 'rgba(255, 255, 255, 0.8)';
             } else {
                 controls.classList.add('controls-hidden');
                 toggleButton.style.transform = 'rotateY(180deg)';
-                toggleButton.style.color = 'rgba(255, 255, 255, 0.2)';
+                toggleButton.style.color = 'rgba(255, 255, 255, 0.5)';
             }
         }
     },
