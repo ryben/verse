@@ -2,7 +2,7 @@
   <div id="app">
     <div id="baseDiv" @contextmenu="rightClickHandler($event)">
       <CustomBackground />
-      <VerseDisplay @focus-input="focusInput" />
+      <VerseDisplay @focus-controlbar-input="focusInput" />
       <ControlBar />
     </div>
   </div>
@@ -45,7 +45,11 @@ export default {
       this.focusInput()
     },
     focusInput() {
-      EventBus.$emit('focus-input')
+      if (this.$store.getters.isControlBarVisible) {
+        EventBus.$emit('focus-controlbar-input')
+      } else {
+        EventBus.$emit('edit-verse-title')
+      }
     }
   }
 }

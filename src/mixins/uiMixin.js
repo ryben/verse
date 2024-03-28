@@ -73,8 +73,8 @@ export const uiMixin = {
                 outline-offset: 3px 6px;
                 border-radius: 10px;
                 background-color: rgba(0, 0, 0, 0.3);
-                padding: 5px 20px;
-                margin: clamp(0.1rem, 0.3vw + 0.6vh, 0.4rem) -20px;
+                padding: 5px 10px;
+                margin: clamp(0.1rem, 0.3vw + 0.6vh, 0.4rem) -10px;
               `
             } else {
                 elementRef.style.cssText = ''

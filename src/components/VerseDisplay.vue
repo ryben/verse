@@ -55,7 +55,7 @@ export default {
       const maxRem = 5 + 1 * ratio + this.verseFontSize; // Range from 5 to 6
 
       verseContent.style.cssText = `
-      font-size: clamp(0.5rem, ${vw.toFixed(2)}vw + ${vh.toFixed(2)}vh, ${maxRem.toFixed(1)}rem);
+      font-size: clamp(0.1rem, ${vw.toFixed(2)}vw + ${vh.toFixed(2)}vh, ${maxRem.toFixed(1)}rem);
       `;
     },
     showNextVerse: function (isNextVerse) {
@@ -65,7 +65,7 @@ export default {
       this.$store.dispatch('increaseFontSize', isIncrease)
     },
     focusInput() {
-      this.$emit('focus-input')
+      this.$emit('focus-controlbar-input')
     },
     handleCopy(e) {
       e.preventDefault(); // Prevent the default copy behavior

@@ -9,7 +9,8 @@
       </span>
     </span>
     <div></div>
-    <span id="verseVersion" ref="verseVersion" v-on:click="onClickVersion" @blur="onBlurVersion" @keydown="handleKeyDown">
+    <span id="verseVersion" ref="verseVersion" v-on:click="onClickVersion" @blur="onBlurVersion"
+      @keydown="handleKeyDown">
       {{ verseDetails.version }}
     </span>
     <div id="versionsDropdown" ref="versionsDropdown" v-if="isDropdownVisible" class="dropdown-menu"
@@ -27,6 +28,7 @@
 <script>
 import { mapState } from 'vuex';
 import { uiMixin } from "@/mixins/uiMixin.js"
+import { EventBus } from '@/utils/eventBus.js';
 
 export default {
   name: 'VerseTitleAndVersion',
@@ -38,6 +40,12 @@ export default {
       isSelectingVersion: false,
       isDropdownVisible: false,
     }
+  },
+  created() {
+    EventBus.$on('edit-verse-title', this.onClickTitle);
+  },
+  beforeDestroy() {
+    EventBus.$off('edit-verse-title', this.onClickTitle);
   },
   mounted() {
     this.makeOtherRefEditable(this.$refs.verseTitleContainer, this.$refs.verseTitle)
@@ -143,7 +151,7 @@ export default {
 #verseTitle {
   color: white;
   text-transform: uppercase;
-  font-size: clamp(0.8rem, 1.7vw + 3.5vh, 5rem);
+  font-size: clamp(0.1rem, 2.3vw + 2.3vh, 3.6rem);
 }
 
 
@@ -160,13 +168,12 @@ export default {
   transform: translateY(-50%);
   opacity: 0;
   transition: opacity 0.2s;
-  color: rgba(0, 0, 0, 0.7);
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.4);
   font-size: clamp(0.8rem, 0.7vw + 2.0vh, 1.5rem);
   border-radius: 15px;
   padding: 12px 16px;
   cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .arrow:active {
@@ -181,7 +188,7 @@ export default {
 .left {
   left: 0;
   /* Aligns to the left edge of the container's padding */
-  transform: translateX(-150%) translateY(-50%);
+  transform: translateX(-130%) translateY(-50%);
   /* Moves it fully outside and centers vertically */
 
 }
@@ -189,7 +196,7 @@ export default {
 .right {
   right: 0;
   /* Aligns to the right edge of the container's padding */
-  transform: translateX(150%) translateY(-50%);
+  transform: translateX(130%) translateY(-50%);
   /* Moves it fully outside and centers vertically */
 
 }
@@ -210,7 +217,7 @@ export default {
   text-transform: uppercase;
   margin-bottom: 10px;
   margin-top: clamp(0.2rem, 0.6vw + 1.2vh, 0.8rem);
-  font-size: clamp(0.8rem, 1.4vw + 2.4vh, 4rem);
+  font-size: clamp(0.1rem, 1.8vw + 1.8vh, 2.7rem);
   cursor: pointer;
 }
 

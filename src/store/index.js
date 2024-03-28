@@ -26,6 +26,7 @@ export default new Vuex.Store({
         selectedBg: '',
         bgImageCustomUrl: null,
         errorDisplay: '',
+        isControlBarVisible: true,
         syncVerse: true,
         syncVersion: true,
     },
@@ -62,6 +63,9 @@ export default new Vuex.Store({
         },
         setSyncVersion(state, syncVersion) {
             state.syncVersion = syncVersion
+        },
+        setIsControlBarVisible(state, isControlBarVisible) {
+            state.isControlBarVisible = isControlBarVisible
         },
     },
     actions: {
@@ -179,6 +183,9 @@ export default new Vuex.Store({
         },
         updateErrorDisplay({ commit }, errorMessage) {
             commit('setErrorDisplay', errorMessage)
+        },
+        updateIsControlBarVisible({ commit }, value) {
+            commit('setIsControlBarVisible', value)
         }
     },
     getters: {
@@ -191,5 +198,6 @@ export default new Vuex.Store({
         selectedBg: state => state.selectedBg,
         syncVerse: state => state.syncVerse,
         syncVersion: state => state.syncVersion,
+        isControlBarVisible: state => state.isControlBarVisible,
     },
 })
